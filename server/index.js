@@ -13,7 +13,17 @@ const port = 5000;
 
 // Middleware
 app.use(bodyParser.json());
-app.use(cors());
+const corsOptions = {
+  origin: [
+    "https://peak-pulse-fitness-tracker-4a5o.vercel.app",
+    "https://peak-pulse-fitness-tracker.vercel.app",
+  ], // Add both frontend and backend URLs
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+
 
 const BASE_URL = process.env.BASE_URL;
 
