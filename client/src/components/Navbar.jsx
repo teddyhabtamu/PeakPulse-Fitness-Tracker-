@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import LogoImg from "../utils/Images/Logo.png";
 import { Link as LinkR, NavLink } from "react-router-dom";
@@ -117,7 +117,7 @@ const MobileMenu = styled.ul`
   padding: 0 6px;
   list-style: none;
   width: 90%;
-  padding: 12px 40px 24px 40px;
+  padding: 12px 20px 24px 40px;
   background: ${({ theme }) => theme.bg};
   position: absolute;
   top: 80px;
@@ -132,7 +132,50 @@ const MobileMenu = styled.ul`
 `;
 
 const Navbar = ({ currentUser, onLogout }) => {
-  const [isOpen, setisOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef(null); // Ref for the mobile menu
+  const menuButtonRef = useRef(null); // Ref for the menu button
+
+  // Close the menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target) &&
+        menuButtonRef.current &&
+        !menuButtonRef.current.contains(event.target)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    // Add event listener when the menu is open
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    // Cleanup the event listener
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen]);
+
+  // Close the menu when resizing to desktop mode
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768) {
+        setIsOpen(false); // Close the menu if screen size is larger than mobile
+      }
+    };
+
+    // Add resize event listener
+    window.addEventListener("resize", handleResize);
+
+    // Cleanup the event listener
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   if (!currentUser) {
     return null; // Or handle loading state or redirect to login
@@ -141,7 +184,7 @@ const Navbar = ({ currentUser, onLogout }) => {
   return (
     <Nav>
       <NavContainer>
-        <Mobileicon onClick={() => setisOpen(!isOpen)}>
+        <Mobileicon ref={menuButtonRef} onClick={() => setIsOpen(!isOpen)}>
           <MenuRounded sx={{ color: "inherit" }} />
         </Mobileicon>
         <NavLogo to="/">
@@ -149,12 +192,22 @@ const Navbar = ({ currentUser, onLogout }) => {
           PeakPulse
         </NavLogo>
 
-        <MobileMenu isOpen={isOpen}>
-          <Navlink to="/">Dashboard</Navlink>
-          <Navlink to="/workouts">Workouts</Navlink>
-          <Navlink to="/tutorials">Tutorials</Navlink>
-          <Navlink to="/blogs">Blogs</Navlink>
-          <Navlink to="/contact">Contact</Navlink>
+        <MobileMenu isOpen={isOpen} ref={menuRef}>
+          <Navlink to="/" onClick={() => setIsOpen(false)}>
+            Dashboard
+          </Navlink>
+          <Navlink to="/workouts" onClick={() => setIsOpen(false)}>
+            Workouts
+          </Navlink>
+          <Navlink to="/tutorials" onClick={() => setIsOpen(false)}>
+            Tutorials
+          </Navlink>
+          <Navlink to="/blogs" onClick={() => setIsOpen(false)}>
+            Blogs
+          </Navlink>
+          <Navlink to="/contact" onClick={() => setIsOpen(false)}>
+            Contact
+          </Navlink>
         </MobileMenu>
 
         <NavItems>
