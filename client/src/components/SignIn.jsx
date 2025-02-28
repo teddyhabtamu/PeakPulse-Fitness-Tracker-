@@ -3,6 +3,7 @@ import styled from "styled-components";
 import TextInput from "./TextInput";
 import "./buttonStyle.css";
 import { useNavigate } from "react-router-dom";
+import { login } from "../utils/api"; // Import login API
 
 const Container = styled.div`
   width: 100%;
@@ -34,36 +35,24 @@ const SignIn = ({ onLogin }) => {
   const handleChangeEmail = (e) => setEmail(e.target.value);
   const handleChangePassword = (e) => setPassword(e.target.value);
 
-  // SignIn Component
+  // Submit Handler
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_BASE_URL}/api/auth/signin`, // Use environment variable
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
-        }
-      );
+      const response = await login(email, password); // Use Axios API
+      console.log("Sign In Success:", response.data);
 
-      const data = await response.json();
-
-      if (response.ok) {
-        console.log("Sign In Success:", data);
-        localStorage.setItem("token", data.token); // Store the token in localStorage
-        onLogin(data.token); // Pass token to parent component
-        navigate("/"); // Redirect to the dashboard
-      } else {
-        setError(data.message);
-      }
+      localStorage.setItem("token", response.data.token); // Save Token
+      onLogin(response.data.token); // Pass Token to Parent
+      navigate("/"); // Redirect to Home Page
     } catch (err) {
-      setError("An error occurred. Please try again.");
+      console.error(err);
+      setError(
+        err.response?.data?.message || "An error occurred. Please try again."
+      );
     } finally {
       setLoading(false);
     }

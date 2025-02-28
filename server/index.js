@@ -10,22 +10,18 @@ const secretKey = "your_secret_key";
 
 const app = express();
 const port = 5000;
+const BASE_URL = process.env.BASE_URL;
+
+
+// CORS configuration
+const corsOptions = {
+  origin: `${BASE_URL}`, 
+  credentials: true, 
+};
 
 // Middleware
 app.use(bodyParser.json());
-const corsOptions = {
-  origin: [
-    "https://peak-pulse-fitness-tracker-4a5o.vercel.app",
-    "https://peak-pulse-fitness-tracker.vercel.app",
-  ], // Add both frontend and backend URLs
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true,
-};
-
-app.use(cors(corsOptions));
-
-
-const BASE_URL = process.env.BASE_URL;
+app.use(cors(corsOptions)); // Use the CORS options
 
 // Route for signup
 app.post("/api/auth/signup", async (req, res) => {
@@ -37,7 +33,7 @@ app.post("/api/auth/signup", async (req, res) => {
 
   try {
     const [existingUser] = await db.execute(
-      "SELECT user_id, email, password FROM users WHERE email = ?",
+      "SELECT user_id FROM users WHERE email = ?",
       [email]
     );
     if (existingUser.length > 0) {
@@ -49,16 +45,9 @@ app.post("/api/auth/signup", async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const newUser = {
-      name,
-      email,
-      password: hashedPassword,
-      created_at: new Date(),
-    };
-
     await db.execute(
-      "INSERT INTO users (name, email, password, created_at) VALUES (?, ?, ?, ?)",
-      [newUser.name, newUser.email, newUser.password, newUser.created_at]
+      "INSERT INTO users (name, email, password, created_at) VALUES (?, ?, ?, NOW())",
+      [name, email, hashedPassword]
     );
 
     res.status(201).json({ message: "User signed up successfully" });
@@ -87,14 +76,12 @@ app.post("/api/auth/signin", async (req, res) => {
     }
 
     const user = existingUser[0];
-
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
-    // Generate a JWT token with user id
     const token = jwt.sign({ id: user.user_id, email: user.email }, secretKey, {
       expiresIn: "1h",
     });
@@ -106,16 +93,13 @@ app.post("/api/auth/signin", async (req, res) => {
   }
 });
 
-// Middleware to extract userId from token for protected routes
 const authenticateToken = (req, res, next) => {
   const authHeader = req.header("Authorization");
-
   if (authHeader) {
     const token = authHeader.replace("Bearer ", "");
     try {
       const decoded = jwt.verify(token, secretKey);
-
-      req.userId = decoded.id; // Ensure the decoded token contains an `id` property
+      req.userId = decoded.id;
       next();
     } catch (err) {
       res.status(401).json({ message: "Unauthorized" });
@@ -125,60 +109,42 @@ const authenticateToken = (req, res, next) => {
   }
 };
 
-// Apply authenticateToken middleware to routes that require authentication
 app.use("/api/dashboard", authenticateToken);
 app.use("/api/todays-workouts", authenticateToken);
 
-// Define the /api/dashboard route
-// Define the /api/dashboard route
 app.get("/api/dashboard", async (req, res) => {
-  const userId = req.userId; // Assuming userId is available after authentication
-
+  const userId = req.userId;
   try {
-    console.log("User ID:", userId); // Just before querying the database
-
     const [[dailyStats], [weeklyStats], [workoutStats], workouts] =
       await Promise.all([
         db.query("SELECT * FROM DailyStat WHERE user_id = ?", [userId]),
         db.query("SELECT * FROM WeeklyStat WHERE user_id = ?", [userId]),
         db.query("SELECT * FROM WorkoutStat WHERE user_id = ?", [userId]),
-        db.query("SELECT * FROM Workout"),
+        db.query("SELECT * FROM Workout WHERE user_id = ?", [userId]),
       ]);
 
-    console.log("Daily Stats:", dailyStats);
-    console.log("Weekly Stats:", weeklyStats);
-
-    res.status(200).json({
-      dailyStats,
-      weeklyStats,
-      workoutStats,
-      workouts,
-    });
+    res.status(200).json({ dailyStats, weeklyStats, workoutStats, workouts });
   } catch (error) {
     console.error("Dashboard Data Fetch Error:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
 
-// Example route to fetch today's workouts
 app.get("/api/todays-workouts", async (req, res) => {
-  const userId = req.userId; // Assuming userId is available after authentication
-  const today = new Date().toISOString().split("T")[0]; // Get today's date in yyyy-mm-dd format
-
+  const userId = req.userId;
+  const today = new Date().toISOString().split("T")[0];
   try {
-    const [rows] = await db.query(
+    const [workouts] = await db.query(
       "SELECT * FROM Workout WHERE user_id = ? AND DATE(date) = ?",
       [userId, today]
     );
-
-    res.status(200).json(rows); // Ensure rows is sent as JSON response
+    res.status(200).json(workouts);
   } catch (error) {
     console.error("Error fetching today's workouts:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
 
-// Add new workout
 app.post("/api/workouts", authenticateToken, async (req, res) => {
   const { category, workout_name, sets, reps, weight, duration, date } =
     req.body;
@@ -189,7 +155,6 @@ app.post("/api/workouts", authenticateToken, async (req, res) => {
       "INSERT INTO Workout (user_id, category, workout_name, sets, reps, weight, duration, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
       [userId, category, workout_name, sets, reps, weight, duration, date]
     );
-
     res.status(201).json({ message: "Workout added successfully" });
   } catch (error) {
     console.error("Error adding workout:", error);
@@ -197,21 +162,18 @@ app.post("/api/workouts", authenticateToken, async (req, res) => {
   }
 });
 
-// Endpoint to fetch workouts for a specific date
 app.get("/api/workouts/:date", authenticateToken, async (req, res) => {
   const userId = req.userId;
-  const { date } = req.params; // Get the date from the request parameters
-
+  const { date } = req.params;
   try {
     const [workouts] = await db.query(
       "SELECT * FROM Workout WHERE user_id = ? AND DATE(date) = ?",
       [userId, date]
     );
-
     res.status(200).json(workouts);
   } catch (error) {
     console.error("Error fetching workouts for the date:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
 
