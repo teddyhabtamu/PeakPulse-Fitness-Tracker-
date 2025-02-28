@@ -1,7 +1,7 @@
 import React from "react";
 import styled, { keyframes } from "styled-components";
 import { useNavigate } from "react-router-dom";
-import HeroImage from "../utils/Images/hero1.jpg"; // Replace with your hero image path
+import HeroImage from "../utils/Images/hero3.png"; // Replace with your hero image path
 
 // Keyframes for animations
 const fadeIn = keyframes`

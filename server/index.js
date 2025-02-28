@@ -10,27 +10,18 @@ const secretKey = "your_secret_key";
 
 const app = express();
 const port = 5000;
+const BASE_URL = process.env.BASE_URL;
+
 
 // CORS configuration
-const allowedOrigins = [
-  "https://peak-pulse-fitness-tracker-kb1c.vercel.app", // Frontend URL
-  "http://localhost:3000", // Local development
-];
-
 const corsOptions = {
-  origin: function (origin, callback) {
-    if (allowedOrigins.includes(origin) || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true,
+  origin: `${BASE_URL}`, 
+  credentials: true, 
 };
 
+// Middleware
 app.use(bodyParser.json());
 app.use(cors(corsOptions)); // Use the CORS options
-app.options("*", cors(corsOptions)); // Handle preflight requests for all routes
 
 // Route for signup
 app.post("/api/auth/signup", async (req, res) => {
@@ -187,5 +178,5 @@ app.get("/api/workouts/:date", authenticateToken, async (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  console.log(`Server is running on ${BASE_URL}`);
 });
