@@ -84,7 +84,7 @@ const Workouts = () => {
   const fetchWorkouts = async (date) => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/workouts/${date}`,
+        `${process.env.REACT_APP_BASE_URL}/api/workouts/${date}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,

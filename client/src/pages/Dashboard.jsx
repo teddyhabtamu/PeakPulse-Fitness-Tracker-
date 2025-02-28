@@ -100,19 +100,19 @@ const Dashboard = () => {
   const fetchDashboardData = async () => {
     try {
       const [dashboardResponse, todaysWorkoutsResponse] = await Promise.all([
-        axios.get("http://localhost:5000/api/dashboard", {
+        axios.get(`${process.env.REACT_APP_BASE_URL}/api/dashboard`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }),
-        axios.get("http://localhost:5000/api/todays-workouts", {
+        axios.get(`${process.env.REACT_APP_BASE_URL}/api/todays-workouts`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }),
       ]);
 
-      console.log("Dashboard Data:", dashboardResponse.data); // Check dashboardResponse.data structure
+      console.log("Dashboard Data:", dashboardResponse.data);
 
       setData({
         dailyStats: dashboardResponse.data.dailyStats || [],
@@ -121,10 +121,10 @@ const Dashboard = () => {
         workouts: dashboardResponse.data.workouts || [],
       });
       setTodaysWorkouts(todaysWorkoutsResponse.data);
-      setError(null); // Reset error state if data fetch succeeds
+      setError(null);
     } catch (error) {
       console.error("Error fetching data:", error);
-      setError(error.message); // Set error state with the error message
+      setError(error.message);
     }
   };
 
@@ -132,7 +132,7 @@ const Dashboard = () => {
   const handleAddWorkout = async (newWorkout) => {
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/workouts",
+        `${process.env.REACT_APP_BASE_URL}/api/workouts`,
         newWorkout,
         {
           headers: {
@@ -141,7 +141,7 @@ const Dashboard = () => {
         }
       );
       alert("Workout added successfully!");
-      fetchDashboardData(); // Fetch updated data after adding workout
+      fetchDashboardData();
     } catch (error) {
       console.error("Error adding workout:", error);
       alert("Failed to add workout");

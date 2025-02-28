@@ -46,7 +46,7 @@ const SignUp = () => {
     setError(""); // Clear any previous errors
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/auth/signup",
+        `${process.env.REACT_APP_BASE_URL}/api/auth/signup`,
         { name, email, password }
       );
       console.log("Sign Up Success:", response.data);

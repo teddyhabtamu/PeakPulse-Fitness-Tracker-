@@ -1,17 +1,21 @@
+require("dotenv").config();
+
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const db = require("./db");
 const jwt = require("jsonwebtoken");
+const secretKey = "your_secret_key";
 
 const app = express();
 const port = 5000;
-const secretKey = "your_secret_key"; // Replace with your actual secret key
 
 // Middleware
 app.use(bodyParser.json());
 app.use(cors());
+
+const BASE_URL = process.env.BASE_URL;
 
 // Route for signup
 app.post("/api/auth/signup", async (req, res) => {
@@ -85,7 +89,6 @@ app.post("/api/auth/signin", async (req, res) => {
       expiresIn: "1h",
     });
 
-
     res.status(200).json({ message: "Sign in successful", token });
   } catch (error) {
     console.error("Signin error:", error);
@@ -101,16 +104,13 @@ const authenticateToken = (req, res, next) => {
     const token = authHeader.replace("Bearer ", "");
     try {
       const decoded = jwt.verify(token, secretKey);
-  
 
       req.userId = decoded.id; // Ensure the decoded token contains an `id` property
       next();
     } catch (err) {
-     
       res.status(401).json({ message: "Unauthorized" });
     }
   } else {
-   
     res.status(401).json({ message: "Authorization header missing" });
   }
 };
@@ -150,8 +150,6 @@ app.get("/api/dashboard", async (req, res) => {
   }
 });
 
-
-
 // Example route to fetch today's workouts
 app.get("/api/todays-workouts", async (req, res) => {
   const userId = req.userId; // Assuming userId is available after authentication
@@ -172,7 +170,8 @@ app.get("/api/todays-workouts", async (req, res) => {
 
 // Add new workout
 app.post("/api/workouts", authenticateToken, async (req, res) => {
-  const { category, workout_name, sets, reps, weight, duration, date } = req.body;
+  const { category, workout_name, sets, reps, weight, duration, date } =
+    req.body;
   const userId = req.userId;
 
   try {
@@ -206,8 +205,6 @@ app.get("/api/workouts/:date", authenticateToken, async (req, res) => {
   }
 });
 
-
-// Start the server
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  console.log(`Server is running on ${BASE_URL}`);
 });

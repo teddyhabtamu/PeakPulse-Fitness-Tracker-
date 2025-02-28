@@ -1,4 +1,6 @@
-const BASE_URL = "http://localhost:5000"; // Replace with your actual backend URL
+
+const BASE_URL = process.env.REACT_APP_BASE_URL;
+
 
 export const addWorkout = async (workoutData, token) => {
   try {

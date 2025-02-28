@@ -1,4 +1,3 @@
-// controllers/userController.js
 
 const userModel = require("../models/userModel");
 
