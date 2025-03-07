@@ -3,34 +3,37 @@ import styled from "styled-components";
 
 const Card = styled.div`
   background-color: ${({ theme }) => theme.card_background};
+  border: 1px solid ${({ theme }) => theme.border_color};
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   padding: 16px;
-  width: 80%;
-  max-width: 800px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin: 0 auto 20px auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 `;
 
-const BlogTitle = styled.h2`
-  font-size: 20px;
+const Title = styled.h3`
+  font-size: 18px;
   color: ${({ theme }) => theme.text_primary};
-  margin: 0;
+  margin-bottom: 8px;
 `;
 
-const BlogContent = styled.div`
-  font-size: 16px;
+const Content = styled.p`
+  font-size: 14px;
   color: ${({ theme }) => theme.text_secondary};
-  white-space: pre-wrap;
 `;
 
-const BlogCard = ({ post }) => (
-  <Card>
-    <BlogTitle>{post.title}</BlogTitle>
-    <BlogContent>{post.content}</BlogContent>
-  </Card>
-);
+const Author = styled.div`
+  font-size: 12px;
+  color: ${({ theme }) => theme.text_secondary};
+  margin-top: 8px;
+`;
+
+const BlogCard = ({ post }) => {
+  return (
+    <Card>
+      <Title>{post.title}</Title>
+      <Content>{post.content}</Content>
+      <Author>By {post.author_name}</Author>
+    </Card>
+  );
+};
 
 export default BlogCard;

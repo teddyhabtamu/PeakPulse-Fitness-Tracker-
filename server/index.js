@@ -179,22 +179,32 @@ app.get("/api/workouts/:date", authenticateToken, async (req, res) => {
 
 app.post("/api/blog", authenticateToken, async (req, res) => {
   const { title, content } = req.body;
-  const userId = req.userId; // Get the user ID from the authenticated token
+  const userId = req.userId;
 
   if (!title || !content) {
     return res.status(400).json({ message: "Title and content are required" });
   }
 
   try {
-    // Insert the blog post into the database
     await db.execute(
       "INSERT INTO Blog (author_id, title, content, created_at) VALUES (?, ?, ?, NOW())",
       [userId, title, content]
     );
-
     res.status(201).json({ message: "Blog post created successfully" });
   } catch (error) {
     console.error("Error creating blog post:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.get("/api/blog", async (req, res) => {
+  try {
+    const [blogPosts] = await db.execute(
+      "SELECT Blog.*, users.name AS author_name FROM Blog JOIN users ON Blog.author_id = users.user_id ORDER BY created_at DESC"
+    );
+    res.status(200).json(blogPosts);
+  } catch (error) {
+    console.error("Error fetching blog posts:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import axios from "axios"; 
-
+import axios from "axios";
 
 const FormContainer = styled.div`
   position: fixed;
@@ -19,59 +18,86 @@ const FormContainer = styled.div`
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 16px;
-  background-color: ${({ theme }) => theme.card_background};
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  gap: 20px;
+  padding: 24px;
+  background-color: ${({ theme }) => theme.card_background || "#ffffff"};
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
   width: 90%;
   max-width: 600px;
   max-height: 90%;
   overflow-y: auto;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+  }
 `;
 
 const Input = styled.input`
-  padding: 8px;
+  padding: 12px;
   font-size: 16px;
-  border: 1px solid ${({ theme }) => theme.border_color};
-  border-radius: 4px;
+  border: 1px solid ${({ theme }) => theme.border_color || "#ddd"};
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.3s ease;
+
+  &:focus {
+    border-color: ${({ theme }) => theme.button_background || "#007bff"};
+  }
 `;
 
 const TextArea = styled.textarea`
-  padding: 8px;
+  padding: 12px;
   font-size: 16px;
-  border: 1px solid ${({ theme }) => theme.border_color};
-  border-radius: 4px;
+  border: 1px solid ${({ theme }) => theme.border_color || "#ddd"};
+  border-radius: 8px;
   resize: none;
   height: 400px;
+  outline: none;
+  transition: border-color 0.3s ease;
+
+  &:focus {
+    border-color: ${({ theme }) => theme.button_background || "#007bff"};
+  }
 `;
 
 const Button = styled.button`
-  padding: 10px 16px;
+  padding: 12px 24px;
   font-size: 16px;
-  color: ${({ theme }) => theme.button_text};
-  background-color: ${({ theme }) => theme.button_background};
+  color: ${({ theme }) => theme.button_text || "#ffffff"};
+  background-color: ${({ theme }) => theme.button_background || "#007bff"};
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+
   &:hover {
-    background-color: ${({ theme }) => theme.button_hover};
+    background-color: ${({ theme }) => theme.button_hover || "#0056b3"};
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 `;
 
 const CancelButton = styled(Button)`
-  background-color: ${({ theme }) => theme.cancel_button_background};
+  background-color: ${({ theme }) =>
+    theme.cancel_button_background || "#6c757d"};
   &:hover {
-    background-color: ${({ theme }) => theme.cancel_button_hover};
+    background-color: ${({ theme }) => theme.cancel_button_hover || "#5a6268"};
   }
 `;
 
 const ButtonGroup = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
+  gap: 16px;
 `;
 
-const BlogForm = ({ closeForm }) => {
+const BlogForm = ({ closeForm, fetchBlogPosts }) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
@@ -84,15 +110,14 @@ const BlogForm = ({ closeForm }) => {
     }
 
     try {
-      const token = localStorage.getItem("token"); // Get the token from local storage
+      const token = localStorage.getItem("token");
       if (!token) {
         alert("You must be logged in to create a blog post");
         return;
       }
 
-      // Send the blog post data to the backend
       const response = await axios.post(
-        "http://localhost:5000/api/blog", // Update this URL
+        "http://localhost:5000/api/blog",
         { title, content },
         {
           headers: {
@@ -106,6 +131,7 @@ const BlogForm = ({ closeForm }) => {
         setTitle("");
         setContent("");
         closeForm();
+        fetchBlogPosts(); // Refresh the blog list
       }
     } catch (error) {
       console.error("Error creating blog post:", error);
@@ -128,10 +154,10 @@ const BlogForm = ({ closeForm }) => {
           onChange={(e) => setContent(e.target.value)}
         />
         <ButtonGroup>
-          <Button type="submit">Submit</Button>
           <CancelButton type="button" onClick={closeForm}>
             Cancel
           </CancelButton>
+          <Button type="submit">Submit</Button>
         </ButtonGroup>
       </Form>
     </FormContainer>

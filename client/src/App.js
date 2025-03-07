@@ -12,6 +12,7 @@ import Navbar from "./components/Navbar";
 import Dashboard from "./pages/Dashboard";
 import Workouts from "./pages/Workouts";
 import Tutorials from "./pages/Tutorials";
+import BlogList from "./components/BlogList";
 import Blogs from "./pages/Blogs";
 import Contact from "./pages/Contact";
 import Home from "./pages/Home";
