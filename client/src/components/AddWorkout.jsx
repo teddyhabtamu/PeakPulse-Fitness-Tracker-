@@ -49,7 +49,13 @@ const AddWorkout = ({ token }) => {
 
   const handleAddWorkoutClick = async () => {
     try {
-      await addWorkout(workout, token); // Pass token to addWorkout function
+      // Ensure the date is in the correct format (YYYY-MM-DD)
+      const formattedWorkout = {
+        ...workout,
+        date: workout.date, // The date is already in the correct format from the input
+      };
+
+      await addWorkout(formattedWorkout, token); // Pass token to addWorkout function
       setWorkout({
         category: "",
         workout_name: "",
@@ -107,7 +113,7 @@ const AddWorkout = ({ token }) => {
       />
       <TextInput
         label="Date"
-        type="date"
+        type="date" // Use type="date" for calendar picker
         value={workout.date}
         name="date"
         handleChange={handleChange}

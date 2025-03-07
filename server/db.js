@@ -1,10 +1,10 @@
 const mysql = require("mysql2");
 
 const pool = mysql.createPool({
-  host: "sql8.freesqldatabase.com",
-  user: "sql8765234",
-  password: "H4dJgPaVsq",
-  database: "sql8765234",
+  host: "mysql-teddy.alwaysdata.net",
+  user: "teddy",
+  password: "1234tttt@#@#",
+  database: "teddy_fitness_tracker",
   port: 3306,
   connectionLimit: 10,
 });

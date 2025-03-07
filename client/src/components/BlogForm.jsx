@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+import axios from "axios"; 
+
 
 const FormContainer = styled.div`
   position: fixed;
@@ -69,17 +71,45 @@ const ButtonGroup = styled.div`
   justify-content: space-between;
 `;
 
-const BlogForm = ({ addPost, closeForm }) => {
+const BlogForm = ({ closeForm }) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (title && content) {
-      addPost({ title, content });
-      setTitle("");
-      setContent("");
-      closeForm();
+
+    if (!title || !content) {
+      alert("Title and content are required");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token"); // Get the token from local storage
+      if (!token) {
+        alert("You must be logged in to create a blog post");
+        return;
+      }
+
+      // Send the blog post data to the backend
+      const response = await axios.post(
+        "http://localhost:5000/api/blog", // Update this URL
+        { title, content },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 201) {
+        alert("Blog post created successfully");
+        setTitle("");
+        setContent("");
+        closeForm();
+      }
+    } catch (error) {
+      console.error("Error creating blog post:", error);
+      alert("Failed to create blog post");
     }
   };
 
