@@ -117,7 +117,7 @@ const BlogForm = ({ closeForm, fetchBlogPosts }) => {
       }
 
       const response = await axios.post(
-        "http://localhost:5000/api/blog",
+        `${process.env.REACT_APP_BASE_URL}/api/blog`,
         { title, content },
         {
           headers: {

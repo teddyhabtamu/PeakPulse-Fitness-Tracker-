@@ -58,7 +58,7 @@ const Blogs = () => {
   // Fetch blog posts from the backend
   const fetchBlogPosts = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/blog");
+      const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/blog`);
       setPosts(response.data);
     } catch (error) {
       console.error("Error fetching blog posts:", error);

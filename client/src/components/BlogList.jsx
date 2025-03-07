@@ -40,7 +40,7 @@ const BlogList = () => {
   useEffect(() => {
     const fetchBlogPosts = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/blog");
+        const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/blog`);
         setBlogPosts(response.data);
       } catch (error) {
         console.error("Error fetching blog posts:", error);
