@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import HeroImage from "../utils/Images/hero3.png";
-import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from "react-icons/fa";
+import { FaTwitter, FaInstagram, FaLinkedin } from "react-icons/fa";
 
 const Nav = styled.nav`
   display: flex;
@@ -29,22 +29,6 @@ const Span = styled.h1`
   color: #00aeff;
   display: inline;
   font-size: 1.8rem;
-`;
-
-const StartButton = styled.button`
-  padding: 0.8rem 2rem;
-  background: #174657;
-  color: white;
-  border: none;
-  width: 400px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: #1e607a;
-  }
 `;
 
 const LoginButton = styled.button`

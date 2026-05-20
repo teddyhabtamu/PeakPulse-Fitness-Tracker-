@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import axios from "axios";
 import WorkoutCard from "../components/cards/WorkoutCard";
-import AddWorkout from "../components/AddWorkout";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateCalendar } from "@mui/x-date-pickers";
@@ -79,7 +78,6 @@ const Workouts = () => {
   const [selectedDate, setSelectedDate] = useState(
     dayjs().format("YYYY-MM-DD")
   );
-  const [workout, setWorkout] = useState("");
 
   const fetchWorkouts = async (date) => {
     try {
@@ -102,10 +100,6 @@ const Workouts = () => {
   useEffect(() => {
     fetchWorkouts(selectedDate);
   }, [selectedDate]);
-
-  const handleChange = (value) => {
-    setWorkout(value);
-  };
 
   const handleDateChange = (date) => {
     setSelectedDate(date.format("YYYY-MM-DD"));

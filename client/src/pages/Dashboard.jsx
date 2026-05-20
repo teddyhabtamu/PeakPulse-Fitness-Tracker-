@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import axios from "axios";
 import CountsCard from "../components/cards/CountsCard";
@@ -89,15 +89,12 @@ const Dashboard = () => {
     }
   }, []);
 
-  // Fetch dashboard data and today's workouts on token change
-  useEffect(() => {
-    if (token) {
-      fetchDashboardData();
-    }
-  }, [token]);
-
   // Function to fetch dashboard data
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
+    if (!token) {
+      return;
+    }
+
     try {
       const [dashboardResponse, todaysWorkoutsResponse] = await Promise.all([
         axios.get(`${process.env.REACT_APP_BASE_URL}/api/dashboard`, {
@@ -126,12 +123,17 @@ const Dashboard = () => {
       console.error("Error fetching data:", error);
       setError(error.message);
     }
-  };
+  }, [token]);
+
+  // Fetch dashboard data and today's workouts when the token is available
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   // Function to handle adding a workout
   const handleAddWorkout = async (newWorkout) => {
     try {
-      const response = await axios.post(
+      await axios.post(
         `${process.env.REACT_APP_BASE_URL}/api/workouts`,
         newWorkout,
         {
