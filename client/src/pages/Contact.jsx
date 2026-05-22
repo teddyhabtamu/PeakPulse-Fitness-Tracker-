@@ -58,38 +58,61 @@ const Form = styled.form`
   gap: 16px;
   width: 90%;
   max-width: 600px;
-  background-color: ${({ theme }) => theme.card_background};
-  padding: 24px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: ${({ theme }) => theme.card};
+  padding: 32px;
+  border-radius: 18px;
+  border: 1px solid ${({ theme }) => theme.text_secondary + 20};
+  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.4);
 `;
 
 const TextArea = styled.textarea`
-  padding: 12px;
+  padding: 16px;
   font-size: 16px;
-  border: 1px solid ${({ theme }) => theme.border_color};
-  border-radius: 4px;
+  border: 1px solid ${({ theme }) => theme.text_secondary + 40};
+  border-radius: 12px;
+  background-color: transparent;
+  color: ${({ theme }) => theme.text_primary};
   resize: none;
-  height: 200px;
+  height: 150px;
+  outline: none;
+  transition: all 0.3s ease;
+  &:focus {
+    border-color: ${({ theme }) => theme.primary};
+    box-shadow: 0px 0px 0px 3px ${({ theme }) => theme.primary + 20};
+  }
 `;
 
 const Input = styled.input`
-  padding: 12px;
+  padding: 16px;
   font-size: 16px;
-  border: 1px solid ${({ theme }) => theme.border_color};
-  border-radius: 4px;
+  border: 1px solid ${({ theme }) => theme.text_secondary + 40};
+  border-radius: 12px;
+  background-color: transparent;
+  color: ${({ theme }) => theme.text_primary};
+  outline: none;
+  transition: all 0.3s ease;
+  &:focus {
+    border-color: ${({ theme }) => theme.primary};
+    box-shadow: 0px 0px 0px 3px ${({ theme }) => theme.primary + 20};
+  }
 `;
 
 const Button = styled.button`
-  padding: 12px;
+  padding: 16px;
   font-size: 16px;
-  color: ${({ theme }) => theme.button_text};
-  background-color: ${({ theme }) => theme.button_background};
+  font-weight: 700;
+  color: #09090E;
+  background: ${({ theme }) => theme.primary};
   border: none;
-  border-radius: 4px;
+  border-radius: 12px;
   cursor: pointer;
+  box-shadow: 0px 8px 15px rgba(0, 255, 157, 0.2);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  margin-top: 10px;
+
   &:hover {
-    background-color: ${({ theme }) => theme.button_hover};
+    transform: translateY(-3px);
+    box-shadow: 0px 15px 20px rgba(0, 255, 157, 0.4);
   }
 `;
 
@@ -108,22 +131,26 @@ const ContactCard = styled.a`
   gap: 16px;
   width: 80%;
   max-width: 300px;
-  padding: 16px;
-  background-color: ${({ theme }) => theme.card_background};
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  background-color: ${({ theme }) => theme.card};
+  border: 1px solid ${({ theme }) => theme.text_secondary + 20};
+  border-radius: 18px;
+  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.4);
   color: ${({ theme }) => theme.text_primary};
   text-decoration: none;
   cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 
   &:hover {
-    background-color: ${({ theme }) => theme.button_hover};
+    transform: translateY(-5px);
+    box-shadow: 0px 15px 30px rgba(182, 36, 255, 0.15);
+    border-color: ${({ theme }) => theme.secondary + 50};
   }
 `;
 
 const Icon = styled.div`
   font-size: 24px;
-  color: ${({ theme }) => theme.icon_color};
+  color: ${({ theme }) => theme.primary};
 
   svg {
     width: 24px;

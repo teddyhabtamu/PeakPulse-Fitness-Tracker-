@@ -6,12 +6,21 @@ const Card = styled.div`
   flex: 1;
   min-width: 280px;
   padding: 24px;
-  border: 1px solid ${({ theme }) => theme.text_primary + 20};
-  border-radius: 14px;
-  box-shadow: 1px 6px 20px 0px ${({ theme }) => theme.primary + 15};
+  border: 1px solid ${({ theme }) => theme.text_secondary + 20};
+  border-radius: 18px;
+  background: ${({ theme }) => theme.card};
+  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.4);
   display: flex;
   flex-direction: column;
   gap: 6px;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 15px 30px rgba(0, 255, 157, 0.15);
+    border-color: ${({ theme }) => theme.primary + 50};
+  }
+
   @media (max-width: 600px) {
     padding: 16px;
   }
@@ -44,6 +53,9 @@ const CategoryChart = ({ data }) => {
       <Title>Category Chart</Title>
       {hasPieChartData ? (
         <PieChart
+          sx={{
+            "& .MuiChartsLegend-series text": { fill: "#FFFFFF !important" },
+          }}
           series={[
             {
               data: pieChartData,

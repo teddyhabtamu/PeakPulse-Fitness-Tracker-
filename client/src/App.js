@@ -6,7 +6,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import { ThemeProvider, styled } from "styled-components";
-import { lightTheme } from "./utils/Themes";
+import { darkTheme } from "./utils/Themes";
 import Authentication from "./pages/Authentication";
 import Navbar from "./components/Navbar";
 import Dashboard from "./pages/Dashboard";
@@ -40,7 +40,7 @@ function App() {
   };
 
   return (
-    <ThemeProvider theme={lightTheme}>
+    <ThemeProvider theme={darkTheme}>
       <Router>
         <Container>
           {user ? (

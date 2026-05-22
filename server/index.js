@@ -15,7 +15,7 @@ const BASE_URL = process.env.BASE_URL;
 
 // CORS configuration
 const corsOptions = {
-  origin: `${BASE_URL}`, 
+  origin: process.env.BASE_URL || 'http://localhost:3000', 
   credentials: true, 
 };
 
@@ -33,7 +33,7 @@ app.post("/api/auth/signup", async (req, res) => {
 
   try {
     const [existingUser] = await db.execute(
-      "SELECT user_id FROM users WHERE email = ?",
+      "SELECT user_id FROM users WHERE email = $1",
       [email]
     );
     if (existingUser.length > 0) {
@@ -46,7 +46,7 @@ app.post("/api/auth/signup", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     await db.execute(
-      "INSERT INTO users (name, email, password, created_at) VALUES (?, ?, ?, NOW())",
+      "INSERT INTO users (name, email, password, created_at) VALUES ($1, $2, $3, NOW())",
       [name, email, hashedPassword]
     );
 
@@ -67,7 +67,7 @@ app.post("/api/auth/signin", async (req, res) => {
 
   try {
     const [existingUser] = await db.execute(
-      "SELECT * FROM users WHERE email = ?",
+      "SELECT * FROM users WHERE email = $1",
       [email]
     );
 
@@ -117,10 +117,10 @@ app.get("/api/dashboard", async (req, res) => {
   try {
     const [[dailyStats], [weeklyStats], [workoutStats], workouts] =
       await Promise.all([
-        db.query("SELECT * FROM DailyStat WHERE user_id = ?", [userId]),
-        db.query("SELECT * FROM WeeklyStat WHERE user_id = ?", [userId]),
-        db.query("SELECT * FROM WorkoutStat WHERE user_id = ?", [userId]),
-        db.query("SELECT * FROM Workout WHERE user_id = ?", [userId]),
+        db.query("SELECT * FROM DailyStat WHERE user_id = $1", [userId]),
+        db.query("SELECT * FROM WeeklyStat WHERE user_id = $1", [userId]),
+        db.query("SELECT * FROM WorkoutStat WHERE user_id = $1", [userId]),
+        db.query("SELECT * FROM Workout WHERE user_id = $1", [userId]),
       ]);
 
     res.status(200).json({ dailyStats, weeklyStats, workoutStats, workouts });
@@ -135,7 +135,7 @@ app.get("/api/todays-workouts", async (req, res) => {
   const today = new Date().toISOString().split("T")[0];
   try {
     const [workouts] = await db.query(
-      "SELECT * FROM Workout WHERE user_id = ? AND DATE(date) = ?",
+      "SELECT * FROM Workout WHERE user_id = $1 AND CAST(date AS DATE) = $2",
       [userId, today]
     );
     res.status(200).json(workouts);
@@ -152,7 +152,7 @@ app.post("/api/workouts", authenticateToken, async (req, res) => {
 
   try {
     await db.execute(
-      "INSERT INTO Workout (user_id, category, workout_name, sets, reps, weight, duration, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO Workout (user_id, category, workout_name, sets, reps, weight, duration, date) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
       [userId, category, workout_name, sets, reps, weight, duration, date]
     );
     res.status(201).json({ message: "Workout added successfully" });
@@ -167,7 +167,7 @@ app.get("/api/workouts/:date", authenticateToken, async (req, res) => {
   const { date } = req.params;
   try {
     const [workouts] = await db.query(
-      "SELECT * FROM Workout WHERE user_id = ? AND DATE(date) = ?",
+      "SELECT * FROM Workout WHERE user_id = $1 AND CAST(date AS DATE) = $2",
       [userId, date]
     );
     res.status(200).json(workouts);
@@ -187,7 +187,7 @@ app.post("/api/blog", authenticateToken, async (req, res) => {
 
   try {
     await db.execute(
-      "INSERT INTO Blog (author_id, title, content, created_at) VALUES (?, ?, ?, NOW())",
+      "INSERT INTO Blog (author_id, title, content, created_at) VALUES ($1, $2, $3, NOW())",
       [userId, title, content]
     );
     res.status(201).json({ message: "Blog post created successfully" });
@@ -209,6 +209,12 @@ app.get("/api/blog", async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Server is running on ${BASE_URL}`);
+app.get("/", (req, res) => {
+  res.send("Backend is running successfully!");
 });
+
+app.listen(port, () => {
+  console.log(`Server is running on ${BASE_URL || `http://localhost:${port}`}`);
+});
+
+module.exports = app;

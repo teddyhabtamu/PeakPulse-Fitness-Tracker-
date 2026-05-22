@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import TextInput from "./TextInput";
-import axios from "axios";
+import { signup } from "../utils/api";
 import { useNavigate } from "react-router-dom";
+import Button from "./Button";
 
 const Container = styled.div`
   width: 100%;
@@ -45,10 +46,7 @@ const SignUp = () => {
     setLoading(true);
     setError(""); // Clear any previous errors
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_BASE_URL}/api/auth/signup`,
-        { name, email, password }
-      );
+      const response = await signup(name, email, password);
       console.log("Sign Up Success:", response.data);
       console.log("navigating");
       navigate("/signin"); // Redirect to the sign-in page after successful signup
@@ -87,6 +85,7 @@ const SignUp = () => {
         <TextInput
           label="Email Address"
           placeholder="Enter your email address"
+          type="email"
           value={email}
           handleChange={handleChangeEmail}
         />
@@ -99,9 +98,12 @@ const SignUp = () => {
           autoComplete="off"
         />
         {error && <div style={{ color: "red" }}>{error}</div>}
-        <button disabled={loading} type="submit">
-          {loading ? "Loading..." : "Sign Up"}
-        </button>
+        <Button 
+          text={loading ? "Loading..." : "Sign Up"} 
+          isLoading={loading} 
+          isDisabled={loading} 
+          onClick={handleSubmit} 
+        />
       </form>
     </Container>
   );

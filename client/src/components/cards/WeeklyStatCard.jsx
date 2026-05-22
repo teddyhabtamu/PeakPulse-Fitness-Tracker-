@@ -6,12 +6,21 @@ const Card = styled.div`
   flex: 1;
   min-width: 280px;
   padding: 24px;
-  border: 1px solid ${({ theme }) => theme.text_primary + 20};
-  border-radius: 14px;
-  box-shadow: 1px 6px 20px 0px ${({ theme }) => theme.primary + 15};
+  border: 1px solid ${({ theme }) => theme.text_secondary + 20};
+  border-radius: 18px;
+  background: ${({ theme }) => theme.card};
+  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.4);
   display: flex;
   flex-direction: column;
   gap: 6px;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 15px 30px rgba(182, 36, 255, 0.15);
+    border-color: ${({ theme }) => theme.secondary + 50};
+  }
+
   @media (max-width: 600px) {
     padding: 16px;
   }
@@ -34,6 +43,11 @@ const WeeklyStatCard = ({ data }) => {
       <Title>Weekly Calories Burned</Title>
       {data?.weeklyStats && data.weeklyStats.length > 0 && (
         <BarChart
+          sx={{
+            "& .MuiChartsAxis-tickLabel": { fill: "#AFAFB5 !important" },
+            "& .MuiChartsAxis-line": { stroke: "#AFAFB5 !important" },
+            "& .MuiChartsAxis-tick": { stroke: "#AFAFB5 !important" },
+          }}
           xAxis={[
             {
               scaleType: "band",

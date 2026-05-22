@@ -3,7 +3,8 @@ import styled from "styled-components";
 import TextInput from "./TextInput";
 import "./buttonStyle.css";
 import { useNavigate } from "react-router-dom";
-import { login } from "../utils/api"; // Import login API
+import { login } from "../utils/api";
+import Button from "./Button";
 
 const Container = styled.div`
   width: 100%;
@@ -71,6 +72,7 @@ const SignIn = ({ onLogin }) => {
         <TextInput
           label="Email Address"
           placeholder="Enter your email address"
+          type="email"
           value={email}
           handleChange={handleChangeEmail}
         />
@@ -83,9 +85,12 @@ const SignIn = ({ onLogin }) => {
           autoComplete="off"
         />
         {error && <div style={{ color: "red" }}>{error}</div>}
-        <button disabled={loading} type="submit">
-          {loading ? "Loading..." : "Sign In"}
-        </button>
+        <Button 
+          text={loading ? "Loading..." : "Sign In"} 
+          isLoading={loading} 
+          isDisabled={loading} 
+          onClick={handleSubmit} 
+        />
       </form>
     </Container>
   );

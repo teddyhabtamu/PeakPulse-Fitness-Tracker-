@@ -1,4 +1,6 @@
-import { CloseRounded, Visibility, VisibilityOff } from "@mui/icons-material";
+import CloseRounded from "@mui/icons-material/CloseRounded";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import React, { useState } from "react";
 import styled from "styled-components";
 
@@ -31,17 +33,19 @@ const Label = styled.label`
 `;
 
 const OutlinedInput = styled.div`
-  border-radius: 8px;
-  border: 0.5px solid ${({ theme }) => theme.text_secondary};
-  background-color: transparent;
+  border-radius: 12px;
+  border: 1px solid ${({ theme }) => theme.text_secondary + 40};
+  background-color: ${({ theme }) => theme.card};
   color: ${({ theme }) => theme.text_primary};
   outline: none;
   padding: 16px;
   display: flex;
   align-items: center;
   gap: 12px;
+  transition: all 0.3s ease;
   &:focus-within {
-    border-color: ${({ theme }) => theme.secondary};
+    border-color: ${({ theme }) => theme.primary};
+    box-shadow: 0px 0px 0px 3px ${({ theme }) => theme.primary + 20};
   }
   ${({ error, theme }) =>
     error &&
@@ -144,6 +148,7 @@ const TextInput = ({
   small,
   popup,
   password,
+  type,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -189,7 +194,7 @@ const TextInput = ({
               placeholder={placeholder}
               value={value}
               onChange={(e) => handleChange(e)} // Use handleChange here
-              type={password && !showPassword ? "password" : "text"}
+              type={password ? (showPassword ? "text" : "password") : (type || "text")}
             />
             {password && (
               <>

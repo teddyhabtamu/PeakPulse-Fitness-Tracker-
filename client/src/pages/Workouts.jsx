@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import axios from "axios";
+import api from "../utils/api";
 import WorkoutCard from "../components/cards/WorkoutCard";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -81,8 +81,8 @@ const Workouts = () => {
 
   const fetchWorkouts = async (date) => {
     try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_BASE_URL}/api/workouts/${date}`,
+      const response = await api.get(
+        `/workouts/${date}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,

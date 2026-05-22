@@ -3,19 +3,19 @@ import React from "react";
 import styled from "styled-components";
 
 const Button = styled.div`
-  border-radius: 10px;
-  color: white;
+  border-radius: 12px;
+  color: ${({ type }) => type === "secondary" ? "white" : "#09090E"};
+  font-weight: 700;
   font-size: 14px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
   height: min-content;
   padding: 16px 26px;
-  box-shadow: 1px 20px 35px 0px ${({ theme }) => theme.primary + 40};
-  border: 1px solid ${({ theme }) => theme.primary};
+  box-shadow: 0px 8px 15px rgba(0, 255, 157, 0.2);
   @media (max-width: 600px) {
     padding: 8px 12px;
   }
@@ -24,11 +24,17 @@ const Button = styled.div`
     type === "secondary"
       ? `
   background: ${theme.secondary};
-border: 1px solid ${({ theme }) => theme.secondary};
+  border: 1px solid ${theme.secondary};
+  box-shadow: 0px 8px 15px rgba(182, 36, 255, 0.2);
   `
       : `
   background: ${theme.primary};
 `}
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0px 15px 20px ${({ type }) => type === "secondary" ? "rgba(182, 36, 255, 0.4)" : "rgba(0, 255, 157, 0.4)"};
+  }
 
   ${({ isDisabled }) =>
     isDisabled &&
@@ -82,8 +88,8 @@ const button = ({
 }) => {
   return (
     <Button
-      onClick={() =>
-        !isDisabled && !isLoading && typeof onClick === "function" && onClick()
+      onClick={(e) =>
+        !isDisabled && !isLoading && typeof onClick === "function" && onClick(e)
       }
       disabled={isDisabled || isLoading} // The button is disabled if isDisabled or isLoading is true
       type={type}

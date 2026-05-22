@@ -8,12 +8,21 @@ const Card = styled.div`
   flex: 1;
   min-width: 280px;
   padding: 24px;
-  border: 1px solid ${({ theme }) => theme.text_primary + 20};
-  border-radius: 14px;
-  box-shadow: 1px 6px 20px 0px ${({ theme }) => theme.primary + 15};
+  border: 1px solid ${({ theme }) => theme.text_secondary + 20};
+  border-radius: 18px;
+  background: ${({ theme }) => theme.card};
+  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.4);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 16px;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 15px 30px rgba(182, 36, 255, 0.15);
+    border-color: ${({ theme }) => theme.secondary + 50};
+  }
+
   @media (max-width: 600px) {
     padding: 16px;
   }
@@ -77,36 +86,46 @@ const AddWorkout = ({ token }) => {
       <Title>Add New Workout</Title>
       <TextInput
         label="Category"
+        placeholder="e.g., Strength, Cardio, Flexibility"
         value={workout.category}
         name="category"
         handleChange={handleChange}
       />
       <TextInput
         label="Workout Name"
+        placeholder="e.g., Bench Press, Running"
         value={workout.workout_name}
         name="workout_name"
         handleChange={handleChange}
       />
       <TextInput
         label="Sets"
+        placeholder="e.g., 3"
+        type="number"
         value={workout.sets}
         name="sets"
         handleChange={handleChange}
       />
       <TextInput
         label="Reps"
+        placeholder="e.g., 12"
+        type="number"
         value={workout.reps}
         name="reps"
         handleChange={handleChange}
       />
       <TextInput
-        label="Weight"
+        label="Weight (kg)"
+        placeholder="e.g., 60"
+        type="number"
         value={workout.weight}
         name="weight"
         handleChange={handleChange}
       />
       <TextInput
-        label="Duration"
+        label="Duration (min)"
+        placeholder="e.g., 30"
+        type="number"
         value={workout.duration}
         name="duration"
         handleChange={handleChange}

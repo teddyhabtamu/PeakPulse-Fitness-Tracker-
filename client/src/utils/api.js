@@ -1,14 +1,14 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: `${process.env.REACT_APP_BASE_URL}/api`, // Base URL from .env
+  baseURL: `${process.env.REACT_APP_BASE_URL || 'http://localhost:5000'}/api`, // Fallback to server if env var missing
   withCredentials: true, // Allow cookies and sessions across origins
 });
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem('token');
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`; // Attach JWT token to every request
+    config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
@@ -19,8 +19,8 @@ export const login = (email, password) => {
 };
 
 // Signup API
-export const signup = (full_name, email, password) => {
-  return api.post("/auth/signup", { full_name, email, password });
+export const signup = (name, email, password) => {
+  return api.post("/auth/signup", { name, email, password });
 };
 
 // Protected Route Example

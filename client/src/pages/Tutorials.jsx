@@ -42,11 +42,19 @@ const VideoGrid = styled.div`
 const VideoCard = styled.div`
   width: 80%;
   max-width: 300px;
-  background-color: ${({ theme }) => theme.card_background};
-  border-radius: 8px;
+  background-color: ${({ theme }) => theme.card};
+  border: 1px solid ${({ theme }) => theme.text_secondary + 20};
+  border-radius: 18px;
   overflow: hidden;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.4);
   cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 15px 30px rgba(182, 36, 255, 0.15);
+    border-color: ${({ theme }) => theme.secondary + 50};
+  }
 `;
 
 const Thumbnail = styled.img`

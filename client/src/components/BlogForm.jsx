@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import axios from "axios";
+import api from "../utils/api";
 
 const FormContainer = styled.div`
   position: fixed;
@@ -116,15 +116,7 @@ const BlogForm = ({ closeForm, fetchBlogPosts }) => {
         return;
       }
 
-      const response = await axios.post(
-        `${process.env.REACT_APP_BASE_URL}/api/blog`,
-        { title, content },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await api.post("/blog", { title, content });
 
       if (response.status === 201) {
         alert("Blog post created successfully");

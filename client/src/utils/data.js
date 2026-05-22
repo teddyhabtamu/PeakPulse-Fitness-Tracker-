@@ -1,8 +1,6 @@
-import {
-  FitnessCenterRounded,
-  LocalFireDepartmentRounded,
-  TimelineRounded,
-} from "@mui/icons-material";
+import FitnessCenterRounded from "@mui/icons-material/FitnessCenterRounded";
+import LocalFireDepartmentRounded from "@mui/icons-material/LocalFireDepartmentRounded";
+import TimelineRounded from "@mui/icons-material/TimelineRounded";
 
 export const counts = [
   {

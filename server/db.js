@@ -1,12 +1,18 @@
-const mysql = require("mysql2");
+const { Pool } = require("pg");
 
-const pool = mysql.createPool({
-  host: "mysql-teddy.alwaysdata.net",
-  user: "teddy",
-  password: "1234tttt@#@#",
-  database: "teddy_fitness_tracker",
-  port: 3306,
-  connectionLimit: 10,
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL || "postgresql://postgres.fvpzutavpzjjwyjxexym:9f9l3AkHJgSnNDbr@aws-0-eu-west-1.pooler.supabase.com:6543/postgres?pgbouncer=true",
 });
 
-module.exports = pool.promise();
+const db = {
+  query: async (text, params) => {
+    const res = await pool.query(text, params);
+    return [res.rows, res.fields];
+  },
+  execute: async (text, params) => {
+    const res = await pool.query(text, params);
+    return [res.rows, res.fields];
+  }
+};
+
+module.exports = db;

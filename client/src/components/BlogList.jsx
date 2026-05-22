@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import axios from "axios";
+import api from "../utils/api";
 
 const BlogContainer = styled.div`
   display: flex;
@@ -40,7 +40,7 @@ const BlogList = () => {
   useEffect(() => {
     const fetchBlogPosts = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/blog`);
+        const response = await api.get("/blog");
         setBlogPosts(response.data);
       } catch (error) {
         console.error("Error fetching blog posts:", error);

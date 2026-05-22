@@ -2,11 +2,13 @@ import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import LogoImg from "../utils/Images/Logo.png";
 import { Link as LinkR, NavLink } from "react-router-dom";
-import { MenuRounded } from "@mui/icons-material";
+import MenuRounded from "@mui/icons-material/MenuRounded";
 import { Avatar } from "@mui/material";
 
 const Nav = styled.div`
-  background-color: ${({ theme }) => theme.bg};
+  background-color: ${({ theme }) => theme.bg + "D9"}; /* 85% opacity */
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   height: 80px;
   display: flex;
   align-items: center;
@@ -37,9 +39,9 @@ const NavLogo = styled(LinkR)`
   gap: 16px;
   padding: 0 6px;
   font-weight: 600;
-  font-size: 18px;
+  font-size: 20px;
   text-decoration: none;
-  color: ${({ theme }) => theme.black};
+  color: ${({ theme }) => theme.text_primary};
 `;
 
 const Logo = styled.img`
@@ -75,14 +77,25 @@ const Navlink = styled(NavLink)`
   color: ${({ theme }) => theme.text_primary};
   font-weight: 500;
   cursor: pointer;
-  transition: all 1s slide-in;
+  transition: all 0.3s ease;
   text-decoration: none;
+  position: relative;
   &:hover {
     color: ${({ theme }) => theme.primary};
   }
   &.active {
     color: ${({ theme }) => theme.primary};
-    border-bottom: 1.8px solid ${({ theme }) => theme.primary};
+  }
+  &.active::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: ${({ theme }) => theme.primary};
+    border-radius: 4px;
+    box-shadow: 0px 2px 8px ${({ theme }) => theme.primary + 80};
   }
 `;
 

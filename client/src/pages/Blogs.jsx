@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import BlogCard from "../components/cards/BlogCard";
 import BlogForm from "../components/BlogForm";
-import axios from "axios"; // Import axios for API requests
+import api from "../utils/api";
 
 const Container = styled.div`
   flex: 1;
@@ -35,19 +35,24 @@ const Title = styled.div`
 `;
 
 const ToggleButton = styled.button`
-  padding: 10px 16px;
-  font-size: 16px;
-  color: ${({ theme }) => theme.button_text};
-  background-color: ${({ theme }) => theme.button_background};
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #09090E;
+  background: ${({ theme }) => theme.primary};
   border: none;
-  border-radius: 4px;
+  border-radius: 12px;
   cursor: pointer;
   position: fixed;
-  top: 100px; /* Adjusted to be below the nav bar */
+  top: 100px;
   right: 20px;
   z-index: 100;
+  box-shadow: 0px 8px 15px rgba(0, 255, 157, 0.2);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+
   &:hover {
-    background-color: ${({ theme }) => theme.button_hover};
+    transform: translateY(-3px);
+    box-shadow: 0px 15px 20px rgba(0, 255, 157, 0.4);
   }
 `;
 
@@ -58,7 +63,7 @@ const Blogs = () => {
   // Fetch blog posts from the backend
   const fetchBlogPosts = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/blog`);
+      const response = await api.get("/blog");
       setPosts(response.data);
     } catch (error) {
       console.error("Error fetching blog posts:", error);
@@ -86,7 +91,7 @@ const Blogs = () => {
           <BlogForm
             addPost={addPost}
             closeForm={() => setShowForm(false)}
-            fetchBlogPosts={fetchBlogPosts} // Pass fetchBlogPosts to refresh the list
+            fetchBlogPosts={fetchBlogPosts}
           />
         )}
         {posts.map((post) => (
