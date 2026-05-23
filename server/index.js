@@ -14,8 +14,16 @@ const BASE_URL = process.env.BASE_URL;
 
 
 // CORS configuration
+const allowedOrigins = [
+  process.env.BASE_URL,
+  'http://localhost:3000',
+  'https://peakpulse.tewodroshabtamu.dev',
+  'https://peak-pulse-fitness-tracker-kb1c.vercel.app',
+  'https://peak-pulse-fitness-tracker.vercel.app'
+].filter(Boolean);
+
 const corsOptions = {
-  origin: process.env.BASE_URL || 'http://localhost:3000', 
+  origin: allowedOrigins, 
   credentials: true, 
 };
 
