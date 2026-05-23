@@ -5,8 +5,9 @@ import CountsCard from "../components/cards/CountsCard";
 import WeeklyStatCard from "../components/cards/WeeklyStatCard";
 import CategoryChart from "../components/cards/CategoryChart";
 import { LinearProgress } from "@mui/material";
-import AddWorkout from "../components/AddWorkout";
 import WorkoutCard from "../components/cards/WorkoutCard";
+import PersonalRecordCard from "../components/cards/PersonalRecordCard";
+import StreakCard from "../components/cards/StreakCard";
 import { FaDumbbell, FaWeightHanging, FaFire, FaRunning } from "react-icons/fa";
 
 // ── Animations ──
@@ -70,8 +71,18 @@ const Greeting = styled.span`
   font-weight: 400;
 `;
 
-// ── Stats Row (3 cards) ──
-const StatsGrid = styled.div`
+// ── Grids ──
+const TwoColGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  animation: ${fadeInUp} 0.5s ease;
+  @media (max-width: 700px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const ThreeColGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
@@ -84,48 +95,70 @@ const StatsGrid = styled.div`
   }
 `;
 
-// ── Goal Section ──
-const GoalContainer = styled.div`
+const ScrollRow = styled.div`
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  animation: ${fadeInUp} 0.65s ease;
+  &::-webkit-scrollbar { height: 4px; }
+  &::-webkit-scrollbar-thumb { background: ${({ theme }) => theme.text_secondary}40; border-radius: 4px; }
+`;
+
+// ── Goal Card ──
+const GoalCard = styled.div`
   background: ${({ theme }) => theme.card};
-  padding: 24px;
+  padding: 20px 24px;
   border-radius: 14px;
   border: 1px solid ${({ theme }) => theme.text_secondary + "20"};
-  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.05);
-  animation: ${fadeInUp} 0.55s ease;
-  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+`;
+
+const GoalIcon = styled.div`
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #174657, #0F2C38);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 20px;
+  flex-shrink: 0;
+`;
+
+const GoalContent = styled.div`
+  flex: 1;
 `;
 
 const GoalHeader = styled.div`
   display: flex;
   justify-content: space-between;
-  margin-bottom: 12px;
   align-items: center;
+  margin-bottom: 8px;
 `;
 
-const GoalTitle = styled.h3`
-  margin: 0;
-  font-size: 18px;
+const GoalTitle = styled.div`
+  font-size: 14px;
+  font-weight: 600;
   color: ${({ theme }) => theme.text_primary};
 `;
 
 const GoalValue = styled.span`
-  font-weight: 600;
-  font-size: 16px;
+  font-weight: 700;
+  font-size: 15px;
   color: ${({ theme }) => theme.primary};
 `;
 
-// ── Main Bento Grid ──
-const BentoGrid = styled.div`
+// ── Charts Grid ──
+const ChartsGrid = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 380px;
-  grid-template-rows: auto;
+  grid-template-columns: 1fr 1fr;
   gap: 20px;
   animation: ${fadeInUp} 0.7s ease;
-
-  @media (max-width: 1100px) {
-    grid-template-columns: 1fr 1fr;
-  }
-  @media (max-width: 700px) {
+  @media (max-width: 900px) {
     grid-template-columns: 1fr;
   }
 `;
@@ -228,14 +261,16 @@ const Dashboard = () => {
   });
 
   const [todaysWorkouts, setTodaysWorkouts] = useState([]);
+  const [personalRecords, setPersonalRecords] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const fetchDashboardData = useCallback(async () => {
     try {
-      const [dashboardResponse, todaysWorkoutsResponse] = await Promise.all([
+      const [dashboardResponse, todaysWorkoutsResponse, prsResponse] = await Promise.all([
         api.get("/dashboard"),
         api.get("/todays-workouts"),
+        api.get("/workouts/prs"),
       ]);
 
       setData({
@@ -243,8 +278,11 @@ const Dashboard = () => {
         weeklyStats: dashboardResponse.data.weeklyStats || [],
         workoutStats: dashboardResponse.data.workoutStats || [],
         workouts: dashboardResponse.data.workouts || [],
+        trends: dashboardResponse.data.trends || {},
+        streak: dashboardResponse.data.streak || { current: 0, longest: 0 },
       });
       setTodaysWorkouts(todaysWorkoutsResponse.data);
+      setPersonalRecords(prsResponse.data.slice(0, 6) || []);
       setError(null);
       setLoading(false);
     } catch (error) {
@@ -323,41 +361,63 @@ const Dashboard = () => {
           </div>
         </PageHeader>
 
-        {/* ─── Daily Goal ─── */}
-        <GoalContainer>
-          <GoalHeader>
-            <GoalTitle>Daily Goal: 60 Mins Active</GoalTitle>
-            <GoalValue>{todaysDuration} / {durationGoal} min</GoalValue>
-          </GoalHeader>
-          <LinearProgress 
-            variant="determinate" 
-            value={progressPercent} 
-            sx={{ 
-              height: 10, 
-              borderRadius: 5, 
-              backgroundColor: '#e0e0e0',
-              '& .MuiLinearProgress-bar': { backgroundColor: '#174657' } // use our new primary color
-            }} 
-          />
-        </GoalContainer>
+        {/* ─── HERO ROW: Streak + Daily Goal ─── */}
+        <TwoColGrid>
+          {data.streak && <StreakCard current={data.streak.current} longest={data.streak.longest} />}
+          <GoalCard>
+            <GoalIcon><FaRunning /></GoalIcon>
+            <GoalContent>
+              <GoalHeader>
+                <GoalTitle>Daily Active Goal</GoalTitle>
+                <GoalValue>{todaysDuration} / {durationGoal} min</GoalValue>
+              </GoalHeader>
+              <LinearProgress
+                variant="determinate"
+                value={progressPercent}
+                sx={{
+                  height: 8,
+                  borderRadius: 4,
+                  backgroundColor: '#e0e0e0',
+                  '& .MuiLinearProgress-bar': { backgroundColor: '#174657' }
+                }}
+              />
+            </GoalContent>
+          </GoalCard>
+        </TwoColGrid>
 
-        {/* ─── Stats Row ─── */}
-        <StatsGrid>
+        {/* ─── STATS: Key Metrics ─── */}
+        <ThreeColGrid>
           {countsCardItems.map((item) => (
             <CountsCard key={item.key} item={item} data={data} trends={data.trends} />
           ))}
-        </StatsGrid>
+        </ThreeColGrid>
 
-        {/* ─── Bento Grid: Charts + Form ─── */}
-        {data && Object.keys(data).length > 0 && (
-          <BentoGrid>
-            <WeeklyStatCard data={data} />
-            <CategoryChart data={data} />
-            <AddWorkout onWorkoutAdded={fetchDashboardData} />
-          </BentoGrid>
+        {/* ─── PERSONAL RECORDS ─── */}
+        {personalRecords.length > 0 && (
+          <>
+            <SectionHeader>
+              <SectionTitle>Personal Records</SectionTitle>
+              <Badge>{personalRecords.length} exercises</Badge>
+            </SectionHeader>
+            <ScrollRow>
+              {personalRecords.map((pr) => (
+                <div key={pr.workout_name} style={{ minWidth: 200, flexShrink: 0 }}>
+                  <PersonalRecordCard pr={pr} />
+                </div>
+              ))}
+            </ScrollRow>
+          </>
         )}
 
-        {/* ─── Today's Workouts ─── */}
+        {/* ─── CHARTS ─── */}
+        {data && data.weeklyStats?.length > 0 && (
+          <ChartsGrid>
+            <WeeklyStatCard data={data} />
+            <CategoryChart data={data} />
+          </ChartsGrid>
+        )}
+
+        {/* ─── TODAY'S WORKOUTS ─── */}
         <SectionHeader>
           <SectionTitle>Today's Workouts</SectionTitle>
           <Badge>{todaysWorkouts.length} logged</Badge>
@@ -373,7 +433,7 @@ const Dashboard = () => {
               <EmptyIcon><FaRunning /></EmptyIcon>
               <div style={{ fontWeight: 600 }}>No workouts yet today</div>
               <div style={{ fontSize: "14px", opacity: 0.7, maxWidth: "300px" }}>
-                Add a new workout using the form above to start tracking your progress!
+                Log your first workout of the day to start tracking your progress!
               </div>
             </EmptyState>
           )}

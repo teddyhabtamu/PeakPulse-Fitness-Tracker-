@@ -400,7 +400,31 @@ app.get("/api/dashboard", async (req, res) => {
       totalVolume: calcTrend(recentVolume, prevVolume),
     };
 
-    res.status(200).json({ dailyStats, weeklyStats, workoutStats, workouts, trends });
+    const workoutDates = [...new Set(workouts.map((w) => w.date ? new Date(w.date).toISOString().split("T")[0] : null).filter(Boolean))].sort();
+    let currentStreak = 0;
+    const today = new Date().toISOString().split("T")[0];
+    const checkDate = new Date(today);
+    for (let i = workoutDates.length - 1; i >= 0; i--) {
+      const dateStr = checkDate.toISOString().split("T")[0];
+      if (workoutDates[i] === dateStr) {
+        currentStreak++;
+        checkDate.setDate(checkDate.getDate() - 1);
+      } else if (workoutDates[i] < dateStr) {
+        break;
+      }
+    }
+    let longestStreak = 0;
+    let streakCount = 0;
+    for (let i = 0; i < workoutDates.length; i++) {
+      if (i === 0 || new Date(workoutDates[i]) - new Date(workoutDates[i - 1]) <= 86400000 * 1.5) {
+        streakCount++;
+        longestStreak = Math.max(longestStreak, streakCount);
+      } else {
+        streakCount = 1;
+      }
+    }
+
+    res.status(200).json({ dailyStats, weeklyStats, workoutStats, workouts, trends, streak: { current: currentStreak, longest: longestStreak } });
   } catch (error) {
     console.error("Dashboard Data Fetch Error:", error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -419,6 +443,84 @@ app.get("/api/todays-workouts", async (req, res) => {
   } catch (error) {
     console.error("Error fetching today's workouts:", error);
     res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+// Personal Records endpoint
+app.get("/api/workouts/prs", authenticateToken, async (req, res) => {
+  const userId = req.userId;
+  try {
+    const [workouts] = await db.query(
+      "SELECT * FROM Workout WHERE user_id = $1 AND sets IS NOT NULL AND reps IS NOT NULL AND weight IS NOT NULL ORDER BY date DESC",
+      [userId]
+    );
+
+    const prs = {};
+    workouts.forEach((w) => {
+      const name = w.workout_name;
+      if (!prs[name]) {
+        prs[name] = {
+          workout_name: name,
+          category: w.category,
+          best_weight: 0,
+          best_reps: 0,
+          best_volume: 0,
+          estimated_1rm: 0,
+          best_weight_date: null,
+          last_date: null,
+        };
+      }
+      const estimated1RM = Number(w.weight) * (1 + Number(w.reps || 0) / 30);
+      const volume = (Number(w.sets) || 0) * (Number(w.reps) || 0) * (Number(w.weight) || 0);
+
+      if (Number(w.weight) > prs[name].best_weight) {
+        prs[name].best_weight = Number(w.weight);
+        prs[name].best_weight_date = w.date;
+      }
+      if (Number(w.reps) > prs[name].best_reps) {
+        prs[name].best_reps = Number(w.reps);
+      }
+      if (estimated1RM > prs[name].estimated_1rm) {
+        prs[name].estimated_1rm = Math.round(estimated1RM);
+      }
+      if (volume > prs[name].best_volume) {
+        prs[name].best_volume = volume;
+      }
+      if (!prs[name].last_date || new Date(w.date) > new Date(prs[name].last_date)) {
+        prs[name].last_date = w.date;
+      }
+    });
+
+    const sorted = Object.values(prs).sort((a, b) => b.estimated_1rm - a.estimated_1rm);
+    res.status(200).json(sorted);
+  } catch (error) {
+    console.error("PRs error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// Exercise progress endpoint
+app.get("/api/workouts/progress/:exerciseName", authenticateToken, async (req, res) => {
+  const userId = req.userId;
+  const { exerciseName } = req.params;
+  try {
+    const [workouts] = await db.query(
+      "SELECT workout_id, sets, reps, weight, duration, date FROM Workout WHERE user_id = $1 AND LOWER(workout_name) = LOWER($2) AND weight IS NOT NULL ORDER BY date ASC",
+      [userId, exerciseName]
+    );
+
+    const progress = workouts.map((w) => ({
+      date: w.date,
+      weight: Number(w.weight) || 0,
+      reps: Number(w.reps) || 0,
+      sets: Number(w.sets) || 0,
+      estimated_1rm: Math.round((Number(w.weight) || 0) * (1 + (Number(w.reps) || 0) / 30)),
+    }));
+
+    res.status(200).json(progress);
+  } catch (error) {
+    console.error("Progress error:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 

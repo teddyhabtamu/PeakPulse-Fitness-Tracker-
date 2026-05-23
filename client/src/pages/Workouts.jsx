@@ -4,7 +4,8 @@ import api from "../utils/api";
 import WorkoutCard from "../components/cards/WorkoutCard";
 import Button from "../components/Button";
 import dayjs from "dayjs";
-import { FiChevronLeft, FiChevronRight, FiActivity, FiClock, FiTarget, FiDownload } from "react-icons/fi";
+import { FiChevronLeft, FiChevronRight, FiActivity, FiClock, FiTarget, FiDownload, FiTrendingUp } from "react-icons/fi";
+import { LineChart } from "@mui/x-charts/LineChart";
 
 const fadeInUp = keyframes`
   from { opacity: 0; transform: translateY(20px); }
@@ -269,6 +270,93 @@ const CardGrid = styled.div`
   gap: 20px;
 `;
 
+// --- Progress Modal ---
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: ${fadeInUp} 0.2s ease;
+`;
+
+const ModalCard = styled.div`
+  background: ${({ theme }) => theme.card};
+  border-radius: 16px;
+  padding: 32px;
+  width: 90%;
+  max-width: 700px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+`;
+
+const ModalHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+`;
+
+const ModalTitle = styled.h3`
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: ${({ theme }) => theme.text_primary};
+`;
+
+const CloseButton = styled.button`
+  background: none;
+  border: none;
+  color: ${({ theme }) => theme.text_secondary};
+  font-size: 24px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: all 0.2s;
+
+  &:hover {
+    background: ${({ theme }) => theme.primary}15;
+    color: ${({ theme }) => theme.primary};
+  }
+`;
+
+const ModalStats = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+`;
+
+const StatBox = styled.div`
+  background: ${({ theme }) => theme.bg};
+  padding: 12px;
+  border-radius: 10px;
+  text-align: center;
+`;
+
+const StatBoxValue = styled.div`
+  font-size: 20px;
+  font-weight: 700;
+  color: ${({ theme }) => theme.primary};
+`;
+
+const StatBoxLabel = styled.div`
+  font-size: 11px;
+  color: ${({ theme }) => theme.text_secondary};
+  margin-top: 2px;
+`;
+
+const ChartWrapper = styled.div`
+  width: 100%;
+  overflow-x: auto;
+`;
+
 // --- Loading / Empty ---
 const EmptyState = styled.div`
   display: flex;
@@ -311,6 +399,29 @@ const Workouts = () => {
   
   // Filter State
   const [activeCategory, setActiveCategory] = useState("All");
+
+  // Progress Modal State
+  const [progressExercise, setProgressExercise] = useState(null);
+  const [progressData, setProgressData] = useState([]);
+  const [progressLoading, setProgressLoading] = useState(false);
+
+  const showProgress = async (exerciseName) => {
+    setProgressExercise(exerciseName);
+    setProgressLoading(true);
+    try {
+      const response = await api.get(`/workouts/progress/${encodeURIComponent(exerciseName)}`);
+      setProgressData(response.data);
+    } catch (err) {
+      setProgressData([]);
+    } finally {
+      setProgressLoading(false);
+    }
+  };
+
+  const closeProgress = () => {
+    setProgressExercise(null);
+    setProgressData([]);
+  };
 
   const fetchWorkouts = async (date) => {
     try {
@@ -475,7 +586,34 @@ const Workouts = () => {
           ) : filteredWorkouts.length > 0 ? (
             <CardGrid>
               {filteredWorkouts.map((workout) => (
-                <WorkoutCard key={workout.workout_id || workout._id || Math.random()} workout={workout} />
+                <div key={workout.workout_id || workout._id || Math.random()} style={{ position: "relative" }}>
+                  <WorkoutCard workout={workout} />
+                  {workout.weight && workout.reps ? (
+                    <button
+                      onClick={() => showProgress(workout.workout_name)}
+                      style={{
+                        position: "absolute",
+                        top: 8,
+                        right: 8,
+                        background: "none",
+                        border: "1px solid #17465740",
+                        borderRadius: 8,
+                        padding: "4px 8px",
+                        cursor: "pointer",
+                        color: "#174657",
+                        fontSize: 11,
+                        fontWeight: 600,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 4,
+                        fontFamily: "inherit",
+                      }}
+                      title="View progress"
+                    >
+                      <FiTrendingUp size={12} /> Progress
+                    </button>
+                  ) : null}
+                </div>
               ))}
             </CardGrid>
           ) : (
@@ -486,6 +624,56 @@ const Workouts = () => {
             </EmptyState>
           )}
         </RightSide>
+
+        {/* Progress Modal */}
+        {progressExercise && (
+          <ModalOverlay onClick={closeProgress}>
+            <ModalCard onClick={(e) => e.stopPropagation()}>
+              <ModalHeader>
+                <ModalTitle>{progressExercise} Progress</ModalTitle>
+                <CloseButton onClick={closeProgress}>&times;</CloseButton>
+              </ModalHeader>
+              {progressLoading ? (
+                <LoadingSpinner />
+              ) : progressData.length > 0 ? (
+                <>
+                  <ModalStats>
+                    <StatBox>
+                      <StatBoxValue>{Math.max(...progressData.map(d => d.estimated_1rm))} kg</StatBoxValue>
+                      <StatBoxLabel>Best 1RM</StatBoxLabel>
+                    </StatBox>
+                    <StatBox>
+                      <StatBoxValue>{Math.max(...progressData.map(d => d.weight))} kg</StatBoxValue>
+                      <StatBoxLabel>Max Weight</StatBoxLabel>
+                    </StatBox>
+                    <StatBox>
+                      <StatBoxValue>{progressData.length}</StatBoxValue>
+                      <StatBoxLabel>Sessions</StatBoxLabel>
+                    </StatBox>
+                  </ModalStats>
+                  <ChartWrapper>
+                    <LineChart
+                      xAxis={[{ data: progressData.map(d => new Date(d.date)), scaleType: "time", tickLabelStyle: { fontSize: 10 } }]}
+                      series={[
+                        { data: progressData.map(d => d.weight), label: "Weight (kg)", color: "#174657" },
+                        { data: progressData.map(d => d.estimated_1rm), label: "Est. 1RM", color: "#FF6B00" },
+                      ]}
+                      height={300}
+                      margin={{ left: 50, right: 20, top: 20, bottom: 30 }}
+                      sx={{ "& .MuiChartsAxis-tickLabel": { fill: "#AFAFB5 !important", fontSize: 10 } }}
+                    />
+                  </ChartWrapper>
+                </>
+              ) : (
+                <EmptyState>
+                  <FiTrendingUp size={40} color="#D3D3D3" />
+                  <h3>No progress data</h3>
+                  <p>Need more logged sets with weight and reps to show progress.</p>
+                </EmptyState>
+              )}
+            </ModalCard>
+          </ModalOverlay>
+        )}
       </Wrapper>
     </Container>
   );
