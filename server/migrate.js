@@ -17,6 +17,13 @@ async function migrate() {
     `);
 
     console.log("Added google_id, reset_token, reset_token_expiry columns to users table");
+
+    await pool.query(`
+      ALTER TABLE Blog
+      ADD COLUMN IF NOT EXISTS cover_image TEXT;
+    `);
+    console.log("Added cover_image column to Blog table");
+
     console.log("Migration complete!");
   } catch (error) {
     console.error("Migration error:", error);

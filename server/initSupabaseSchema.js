@@ -81,10 +81,17 @@ async function initSchema() {
         author_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE,
         title VARCHAR(255) NOT NULL,
         content TEXT NOT NULL,
+        cover_image TEXT,
         created_at TIMESTAMP DEFAULT NOW()
       );
     `);
     console.log("Created Blog table");
+
+    await pool.query(`
+      ALTER TABLE Blog
+      ADD COLUMN IF NOT EXISTS cover_image TEXT;
+    `);
+    console.log("Added cover_image column to Blog table");
 
     console.log("Schema initialization successful!");
   } catch (error) {

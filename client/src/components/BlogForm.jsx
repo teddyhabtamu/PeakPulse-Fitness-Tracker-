@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import styled, { keyframes } from "styled-components";
 import api from "../utils/api";
 import Button from "./Button";
+import { FiImage, FiX } from "react-icons/fi";
 
 const fadeIn = keyframes`
   from { opacity: 0; }
@@ -145,11 +146,104 @@ const Message = styled.div`
   border: 1px solid ${({ type, theme }) => (type === "error" ? theme.red + "30" : theme.green + "30")};
 `;
 
+const UploadArea = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+`;
+
+const UploadBtn = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: ${({ theme }) => theme.primary}10;
+  border: 1px dashed ${({ theme }) => theme.primary}50;
+  border-radius: 10px;
+  color: ${({ theme }) => theme.primary};
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+  &:hover { background: ${({ theme }) => theme.primary}20; border-color: ${({ theme }) => theme.primary}; }
+`;
+
+const CoverPreview = styled.div`
+  position: relative;
+  width: 100%;
+  max-height: 200px;
+  border-radius: 12px;
+  overflow: hidden;
+  img { width: 100%; max-height: 200px; object-fit: cover; display: block; }
+`;
+
+const RemoveImg = styled.button`
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  &:hover { background: rgba(0,0,0,0.8); }
+`;
+
+const InlineHint = styled.div`
+  font-size: 12px;
+  color: ${({ theme }) => theme.text_secondary};
+  margin-top: 4px;
+`;
+
 const BlogForm = ({ closeForm, fetchBlogPosts }) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [coverImage, setCoverImage] = useState("");
+  const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "" });
+  const fileInputRef = useRef(null);
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setMessage({ text: "Please select an image file.", type: "error" });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setMessage({ text: "Image must be under 5MB.", type: "error" });
+      return;
+    }
+    setUploading(true);
+    setMessage({ text: "", type: "" });
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+      const res = await api.post("/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setCoverImage(res.data.url);
+      setMessage({ text: "Image uploaded successfully!", type: "success" });
+    } catch (err) {
+      setMessage({ text: "Failed to upload image.", type: "error" });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const insertImageMark = () => {
+    const url = prompt("Paste image URL to embed in content:");
+    if (url) setContent((prev) => prev + `\n![](${url})\n`);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -169,16 +263,17 @@ const BlogForm = ({ closeForm, fetchBlogPosts }) => {
         return;
       }
 
-      const response = await api.post("/blog", { title, content });
+      const response = await api.post("/blog", { title, content, cover_image: coverImage || undefined });
 
       if (response.status === 201) {
         setMessage({ text: "Blog post published successfully!", type: "success" });
         setTitle("");
         setContent("");
-        fetchBlogPosts(); // Refresh list immediately behind modal
+        setCoverImage("");
+        fetchBlogPosts();
         setTimeout(() => {
           closeForm();
-        }, 1500); // Close automatically after showing success msg
+        }, 1500);
       }
     } catch (error) {
       console.error("Error creating blog post:", error);
@@ -217,13 +312,40 @@ const BlogForm = ({ closeForm, fetchBlogPosts }) => {
         </FormGroup>
 
         <FormGroup>
+          <Label>Cover Image (optional)</Label>
+          {coverImage ? (
+            <CoverPreview>
+              <img src={coverImage} alt="Cover" />
+              <RemoveImg type="button" onClick={() => setCoverImage("")}><FiX size={14} /></RemoveImg>
+            </CoverPreview>
+          ) : (
+            <UploadArea>
+              <UploadBtn type="button" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
+                <FiImage size={16} /> {uploading ? "Uploading..." : "Upload Cover"}
+              </UploadBtn>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={handleImageUpload}
+              />
+            </UploadArea>
+          )}
+        </FormGroup>
+
+        <FormGroup>
           <Label>Story Content</Label>
           <TextArea
-            placeholder="Tell your story here..."
+            placeholder="Tell your story here... Use the button below to embed images inline."
             value={content}
             onChange={(e) => setContent(e.target.value)}
             disabled={loading}
           />
+          <UploadBtn type="button" onClick={insertImageMark} style={{ alignSelf: "flex-start" }}>
+            <FiImage size={14} /> Embed Image in Text
+          </UploadBtn>
+          <InlineHint>Tip: You can also paste image URLs like ![alt](url) directly in the content.</InlineHint>
         </FormGroup>
 
         <ButtonGroup>

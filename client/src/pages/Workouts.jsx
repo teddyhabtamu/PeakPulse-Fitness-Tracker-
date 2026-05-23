@@ -586,31 +586,34 @@ const Workouts = () => {
           ) : filteredWorkouts.length > 0 ? (
             <CardGrid>
               {filteredWorkouts.map((workout) => (
-                <div key={workout.workout_id || workout._id || Math.random()} style={{ position: "relative" }}>
+                <div key={workout.workout_id || workout._id || Math.random()}>
                   <WorkoutCard workout={workout} />
                   {workout.weight && workout.reps ? (
                     <button
                       onClick={() => showProgress(workout.workout_name)}
                       style={{
-                        position: "absolute",
-                        top: 8,
-                        right: 8,
+                        width: "100%",
+                        marginTop: 8,
                         background: "none",
-                        border: "1px solid #17465740",
+                        border: "1px solid #17465730",
                         borderRadius: 8,
-                        padding: "4px 8px",
+                        padding: "6px 8px",
                         cursor: "pointer",
                         color: "#174657",
                         fontSize: 11,
                         fontWeight: 600,
                         display: "flex",
                         alignItems: "center",
+                        justifyContent: "center",
                         gap: 4,
                         fontFamily: "inherit",
+                        transition: "all 0.2s",
                       }}
+                      onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#174657"; e.currentTarget.style.background = "#17465710"; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#17465730"; e.currentTarget.style.background = "none"; }}
                       title="View progress"
                     >
-                      <FiTrendingUp size={12} /> Progress
+                      <FiTrendingUp size={12} /> View Progress
                     </button>
                   ) : null}
                 </div>

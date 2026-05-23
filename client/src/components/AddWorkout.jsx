@@ -4,11 +4,12 @@ import TextInput from "./TextInput";
 import Button from "./Button";
 import api from "../utils/api";
 import ExerciseLibrary from "./ExerciseLibrary";
-import { FiBookOpen } from "react-icons/fi";
+import dayjs from "dayjs";
+import { FiBookOpen, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 const Card = styled.div`
-  flex: 1;
-  min-width: 280px;
+  width: 100%;
+  max-width: 420px;
   padding: 24px;
   border: 1px solid ${({ theme }) => theme.border};
   border-radius: 16px;
@@ -20,6 +21,7 @@ const Card = styled.div`
 
   @media (max-width: 600px) {
     padding: 16px;
+    max-width: 100%;
   }
 `;
 
@@ -81,6 +83,100 @@ const BrowseButton = styled.button`
   }
 `;
 
+const DateToggle = styled.button`
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid ${({ theme }) => theme.border};
+  border-radius: 12px;
+  background: ${({ theme }) => theme.card};
+  color: ${({ theme }) => theme.text_primary};
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: inherit;
+  transition: border-color 0.2s;
+  &:hover { border-color: ${({ theme }) => theme.primary}; }
+`;
+
+const CalDropdown = styled.div`
+  background: ${({ theme }) => theme.card};
+  border: 1px solid ${({ theme }) => theme.border};
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 50;
+`;
+
+const CalHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+`;
+
+const CalMonth = styled.h3`
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: ${({ theme }) => theme.text_primary};
+`;
+
+const CalNav = styled.button`
+  background: none;
+  border: none;
+  color: ${({ theme }) => theme.text_secondary};
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s;
+  &:hover { background: ${({ theme }) => theme.primary}15; color: ${({ theme }) => theme.primary}; }
+`;
+
+const CalWeekDays = styled.div`
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 8px;
+  text-align: center;
+`;
+
+const CalDayLabel = styled.div`
+  font-size: 12px;
+  font-weight: 600;
+  color: ${({ theme }) => theme.text_secondary};
+`;
+
+const CalDaysGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+`;
+
+const CalDay = styled.button`
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: none;
+  background: ${({ selected, isToday, theme }) =>
+    selected ? theme.primary : isToday ? theme.primary + "15" : "transparent"};
+  color: ${({ selected, isToday, theme }) =>
+    selected ? "#FFF" : isToday ? theme.primary : theme.text_primary};
+  font-weight: ${({ selected, isToday }) => (selected || isToday ? "700" : "500")};
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  opacity: ${({ isCurrentMonth }) => (isCurrentMonth !== false ? "1" : "0.3")};
+  &:hover { background: ${({ selected, theme }) => selected ? theme.primary : theme.primary + "20"}; color: ${({ selected, theme }) => selected ? "#FFF" : theme.primary}; }
+`;
+
 const Grid2Col = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -104,6 +200,21 @@ const AddWorkout = ({ onWorkoutAdded }) => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "" });
   const [libraryOpen, setLibraryOpen] = useState(false);
+  const [calOpen, setCalOpen] = useState(false);
+  const [calMonth, setCalMonth] = useState(dayjs());
+
+  const startOfMonth = calMonth.startOf('month');
+  const endOfMonth = calMonth.endOf('month');
+  const calStart = startOfMonth.startOf('week');
+  const calEnd = endOfMonth.endOf('week');
+  const calDays = [];
+  let d = calStart;
+  while (d.isBefore(calEnd)) { calDays.push(d); d = d.add(1, 'day'); }
+
+  const selectDate = (day) => {
+    setWorkout((prev) => ({ ...prev, date: day.format("YYYY-MM-DD") }));
+    setCalOpen(false);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -233,13 +344,37 @@ const AddWorkout = ({ onWorkoutAdded }) => {
         />
       </Grid2Col>
       
-      <TextInput
-        label="Date"
-        type="date"
-        value={workout.date}
-        name="date"
-        handleChange={handleChange}
-      />
+      <div style={{ position: "relative" }}>
+        <DateToggle type="button" onClick={() => setCalOpen(!calOpen)}>
+          <span>{dayjs(workout.date).format("MMM D, YYYY")}</span>
+          <FiChevronRight size={14} style={{ transform: calOpen ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.2s" }} />
+        </DateToggle>
+        {calOpen && (
+          <CalDropdown>
+            <CalHeader>
+              <CalNav onClick={() => setCalMonth(calMonth.subtract(1, 'month'))}><FiChevronLeft size={18} /></CalNav>
+              <CalMonth>{calMonth.format("MMMM YYYY")}</CalMonth>
+              <CalNav onClick={() => setCalMonth(calMonth.add(1, 'month'))}><FiChevronRight size={18} /></CalNav>
+            </CalHeader>
+            <CalWeekDays>
+              {['Su','Mo','Tu','We','Th','Fr','Sa'].map(d => <CalDayLabel key={d}>{d}</CalDayLabel>)}
+            </CalWeekDays>
+            <CalDaysGrid>
+              {calDays.map((day, i) => (
+                <CalDay
+                  key={i}
+                  isCurrentMonth={day.month() === calMonth.month()}
+                  selected={day.format("YYYY-MM-DD") === workout.date}
+                  isToday={day.isSame(dayjs(), 'day')}
+                  onClick={() => selectDate(day)}
+                >
+                  {day.format('D')}
+                </CalDay>
+              ))}
+            </CalDaysGrid>
+          </CalDropdown>
+        )}
+      </div>
       
       <Button 
         text="Add Workout" 

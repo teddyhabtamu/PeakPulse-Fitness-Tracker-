@@ -9,6 +9,8 @@ const db = require("./db");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const { OAuth2Client } = require("google-auth-library");
+const multer = require("multer");
+const path = require("path");
 const resetPasswordEmail = require("./templates/resetPasswordEmail");
 const welcomeEmail = require("./templates/welcomeEmail");
 
@@ -18,6 +20,28 @@ const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const app = express();
 const port = 5000;
 const BASE_URL = process.env.BASE_URL;
+
+const uploadDir = path.join(__dirname, "uploads");
+if (!require("fs").existsSync(uploadDir)) {
+  require("fs").mkdirSync(uploadDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadDir),
+  filename: (req, file, cb) => {
+    const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, unique + path.extname(file.originalname));
+  },
+});
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowed = /\.(jpg|jpeg|png|gif|webp)$/i;
+    if (allowed.test(path.extname(file.originalname))) return cb(null, true);
+    cb(new Error("Only image files (jpg, png, gif, webp) are allowed"));
+  },
+});
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || "smtp.ethereal.email",
@@ -49,7 +73,8 @@ const corsOptions = {
 
 // Middleware
 app.use(bodyParser.json());
-app.use(cors(corsOptions)); // Use the CORS options
+app.use(cors(corsOptions));
+app.use("/uploads", express.static(uploadDir));
 
 // Route for signup
 app.post("/api/auth/signup", async (req, res) => {
@@ -561,8 +586,15 @@ app.get("/api/workouts/:date", authenticateToken, async (req, res) => {
   }
 });
 
+// Image upload endpoint
+app.post("/api/upload", authenticateToken, upload.single("image"), (req, res) => {
+  if (!req.file) return res.status(400).json({ message: "No file uploaded" });
+  const url = `${BASE_URL || `http://localhost:${port}`}/uploads/${req.file.filename}`;
+  res.status(200).json({ url, filename: req.file.filename });
+});
+
 app.post("/api/blog", authenticateToken, async (req, res) => {
-  const { title, content } = req.body;
+  const { title, content, cover_image } = req.body;
   const userId = req.userId;
 
   if (!title || !content) {
@@ -571,8 +603,8 @@ app.post("/api/blog", authenticateToken, async (req, res) => {
 
   try {
     await db.execute(
-      "INSERT INTO Blog (author_id, title, content, created_at) VALUES ($1, $2, $3, NOW())",
-      [userId, title, content]
+      "INSERT INTO Blog (author_id, title, content, cover_image, created_at) VALUES ($1, $2, $3, $4, NOW())",
+      [userId, title, content, cover_image || null]
     );
     res.status(201).json({ message: "Blog post created successfully" });
   } catch (error) {

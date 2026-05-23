@@ -95,7 +95,14 @@ const Title = styled.h3`
   line-height: 1.4;
 `;
 
-const Content = styled.p`
+const CoverImage = styled.img`
+  width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+  border-radius: 12px;
+`;
+
+const Content = styled.div`
   font-size: 15px;
   color: ${({ theme }) => theme.text_secondary};
   line-height: 1.6;
@@ -104,6 +111,13 @@ const Content = styled.p`
   -webkit-line-clamp: ${({ expanded }) => (expanded ? "unset" : "3")};
   -webkit-box-orient: vertical;
   overflow: hidden;
+  white-space: pre-line;
+
+  img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin: 8px 0;
+  }
 `;
 
 const ReadMoreBtn = styled.button`
@@ -127,6 +141,10 @@ const ReadMoreBtn = styled.button`
 
 const BlogCard = ({ post }) => {
   const [expanded, setExpanded] = useState(false);
+
+  const renderContent = (text) => {
+    return text.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" />');
+  };
 
   // Fallbacks for missing data
   const authorName = post.author_name || "Anonymous";
@@ -156,9 +174,9 @@ const BlogCard = ({ post }) => {
       
       <Title>{post.title}</Title>
       
-      <Content expanded={expanded}>
-        {post.content}
-      </Content>
+      {post.cover_image && <CoverImage src={post.cover_image} alt={post.title} />}
+      
+      <Content expanded={expanded} dangerouslySetInnerHTML={{ __html: renderContent(post.content) }} />
       
       {wordCount > 30 && (
         <ReadMoreBtn onClick={() => setExpanded(!expanded)}>

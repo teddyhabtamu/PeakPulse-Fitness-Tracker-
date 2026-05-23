@@ -6,6 +6,7 @@ import WeeklyStatCard from "../components/cards/WeeklyStatCard";
 import CategoryChart from "../components/cards/CategoryChart";
 import { LinearProgress } from "@mui/material";
 import WorkoutCard from "../components/cards/WorkoutCard";
+import AddWorkout from "../components/AddWorkout";
 import PersonalRecordCard from "../components/cards/PersonalRecordCard";
 import StreakCard from "../components/cards/StreakCard";
 import { FaDumbbell, FaWeightHanging, FaFire, FaRunning } from "react-icons/fa";
@@ -416,6 +417,9 @@ const Dashboard = () => {
             <CategoryChart data={data} />
           </ChartsGrid>
         )}
+
+        {/* ─── ADD WORKOUT ─── */}
+        <AddWorkout onWorkoutAdded={fetchDashboardData} />
 
         {/* ─── TODAY'S WORKOUTS ─── */}
         <SectionHeader>
