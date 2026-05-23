@@ -4,7 +4,7 @@ import api from "../utils/api";
 import WorkoutCard from "../components/cards/WorkoutCard";
 import Button from "../components/Button";
 import dayjs from "dayjs";
-import { FiChevronLeft, FiChevronRight, FiFilter, FiActivity, FiClock, FiTarget, FiDownload } from "react-icons/fi";
+import { FiChevronLeft, FiChevronRight, FiActivity, FiClock, FiTarget, FiDownload } from "react-icons/fi";
 
 const fadeInUp = keyframes`
   from { opacity: 0; transform: translateY(20px); }

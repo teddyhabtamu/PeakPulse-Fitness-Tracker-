@@ -276,8 +276,8 @@ const SignUp = ({ onLogin }) => {
         )}
         <Terms>
           By signing up, you agree to our{" "}
-          <a href="#">Terms of Service</a> and{" "}
-          <a href="#">Privacy Policy</a>
+          <a href="/terms-of-service">Terms of Service</a> and{" "}
+          <a href="/privacy-policy">Privacy Policy</a>
         </Terms>
       </StyledForm>
     </Container>

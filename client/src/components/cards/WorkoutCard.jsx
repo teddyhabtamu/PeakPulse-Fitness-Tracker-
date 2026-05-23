@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { FiActivity, FiClock, FiTarget } from "react-icons/fi";
+import { FiClock, FiTarget } from "react-icons/fi";
 
 const Card = styled.div`
   padding: 20px;
