@@ -1,10 +1,7 @@
 import React from "react";
-import styled, { keyframes } from "styled-components";
+import styled from "styled-components";
 
-const shimmer = keyframes`
-  0%   { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-`;
+
 
 const Card = styled.div`
   padding: 28px;
