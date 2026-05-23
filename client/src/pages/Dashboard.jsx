@@ -4,6 +4,7 @@ import api from "../utils/api";
 import CountsCard from "../components/cards/CountsCard";
 import WeeklyStatCard from "../components/cards/WeeklyStatCard";
 import CategoryChart from "../components/cards/CategoryChart";
+import { LinearProgress } from "@mui/material";
 import AddWorkout from "../components/AddWorkout";
 import WorkoutCard from "../components/cards/WorkoutCard";
 import { FaDumbbell, FaWeightHanging, FaFire, FaRunning } from "react-icons/fa";
@@ -57,6 +58,10 @@ const Title = styled.h1`
   color: ${({ theme }) => theme.text_primary};
   margin: 0;
   letter-spacing: -0.5px;
+
+  @media (max-width: 600px) {
+    font-size: 22px;
+  }
 `;
 
 const Greeting = styled.span`
@@ -77,6 +82,36 @@ const StatsGrid = styled.div`
   @media (max-width: 600px) {
     grid-template-columns: 1fr;
   }
+`;
+
+// ── Goal Section ──
+const GoalContainer = styled.div`
+  background: ${({ theme }) => theme.card};
+  padding: 24px;
+  border-radius: 14px;
+  border: 1px solid ${({ theme }) => theme.text_secondary + "20"};
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.05);
+  animation: ${fadeInUp} 0.55s ease;
+  margin-bottom: 8px;
+`;
+
+const GoalHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  align-items: center;
+`;
+
+const GoalTitle = styled.h3`
+  margin: 0;
+  font-size: 18px;
+  color: ${({ theme }) => theme.text_primary};
+`;
+
+const GoalValue = styled.span`
+  font-weight: 600;
+  font-size: 16px;
+  color: ${({ theme }) => theme.primary};
 `;
 
 // ── Main Bento Grid ──
@@ -223,17 +258,6 @@ const Dashboard = () => {
     fetchDashboardData();
   }, [fetchDashboardData]);
 
-  const handleAddWorkout = async (newWorkout) => {
-    try {
-      await api.post("/workouts", newWorkout);
-      alert("Workout added successfully!");
-      fetchDashboardData();
-    } catch (error) {
-      console.error("Error adding workout:", error);
-      alert("Failed to add workout");
-    }
-  };
-
   if (loading) {
     return (
       <LoadingContainer>
@@ -253,33 +277,40 @@ const Dashboard = () => {
 
   const countsCardItems = [
     {
-      name: "Total Calories Burnt",
-      key: "totalCaloriesBurnt",
-      unit: "calories",
-      desc: "Total calories burned overall",
-      color: "#FFFFFF",
-      lightColor: "#2D78D1",
-      icon: <FaFire />,
-    },
-    {
       name: "Total Workouts",
       key: "totalWorkouts",
       unit: "workouts",
-      desc: "Total number of workouts completed",
+      desc: "Total workouts completed",
       color: "#FFFFFF",
-      lightColor: "#FFB300",
+      lightColor: "#00FF9D",
       icon: <FaDumbbell />,
+      trendKey: "totalWorkouts",
     },
     {
-      name: "Avg Calories Per Workout",
-      key: "avgCaloriesBurntPerWorkout",
-      unit: "calories",
-      desc: "Average calories burned per workout",
+      name: "Total Duration",
+      key: "totalDuration",
+      unit: "min",
+      desc: "Total workout minutes",
+      color: "#FFFFFF",
+      lightColor: "#2D78D1",
+      icon: <FaFire />,
+      trendKey: "totalDuration",
+    },
+    {
+      name: "Total Volume",
+      key: "totalVolume",
+      unit: "kg",
+      desc: "Total weight lifted (sets × reps × weight)",
       color: "#FFFFFF",
       lightColor: "#E91E63",
       icon: <FaWeightHanging />,
+      trendKey: "totalVolume",
     },
   ];
+
+  const todaysDuration = todaysWorkouts.reduce((acc, w) => acc + (parseInt(w.duration) || 0), 0);
+  const durationGoal = 60; // Goal is 60 minutes of workout per day
+  const progressPercent = Math.min((todaysDuration / durationGoal) * 100, 100);
 
   return (
     <Container>
@@ -292,10 +323,28 @@ const Dashboard = () => {
           </div>
         </PageHeader>
 
+        {/* ─── Daily Goal ─── */}
+        <GoalContainer>
+          <GoalHeader>
+            <GoalTitle>Daily Goal: 60 Mins Active</GoalTitle>
+            <GoalValue>{todaysDuration} / {durationGoal} min</GoalValue>
+          </GoalHeader>
+          <LinearProgress 
+            variant="determinate" 
+            value={progressPercent} 
+            sx={{ 
+              height: 10, 
+              borderRadius: 5, 
+              backgroundColor: '#e0e0e0',
+              '& .MuiLinearProgress-bar': { backgroundColor: '#174657' } // use our new primary color
+            }} 
+          />
+        </GoalContainer>
+
         {/* ─── Stats Row ─── */}
         <StatsGrid>
           {countsCardItems.map((item) => (
-            <CountsCard key={item.key} item={item} data={data} />
+            <CountsCard key={item.key} item={item} data={data} trends={data.trends} />
           ))}
         </StatsGrid>
 
@@ -304,7 +353,7 @@ const Dashboard = () => {
           <BentoGrid>
             <WeeklyStatCard data={data} />
             <CategoryChart data={data} />
-            <AddWorkout onAddWorkout={handleAddWorkout} />
+            <AddWorkout onWorkoutAdded={fetchDashboardData} />
           </BentoGrid>
         )}
 

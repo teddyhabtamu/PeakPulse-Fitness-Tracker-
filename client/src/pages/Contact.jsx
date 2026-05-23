@@ -11,8 +11,13 @@ const Container = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 22px 0px;
+  padding: 22px 16px;
   overflow-y: scroll;
+  box-sizing: border-box;
+
+  @media (max-width: 600px) {
+    padding: 12px 12px;
+  }
 `;
 
 const Wrapper = styled.div`
@@ -22,8 +27,10 @@ const Wrapper = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 22px;
+  padding: 0 16px;
   @media (max-width: 600px) {
     gap: 12px;
+    padding: 0 8px;
   }
 `;
 
@@ -33,6 +40,11 @@ const Title = styled.div`
   font-size: 25px;
   color: ${({ theme }) => theme.text_primary};
   font-weight: 800;
+
+  @media (max-width: 600px) {
+    margin-top: 40px;
+    font-size: 20px;
+  }
 `;
 
 const Content = styled.div`
@@ -42,6 +54,7 @@ const Content = styled.div`
   @media (max-width: 800px) {
     flex-direction: column;
     align-items: center;
+    gap: 20px;
   }
 `;
 
@@ -62,7 +75,12 @@ const Form = styled.form`
   padding: 32px;
   border-radius: 18px;
   border: 1px solid ${({ theme }) => theme.text_secondary + 20};
-  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 12px ${({ theme }) => theme.shadow};
+
+  @media (max-width: 600px) {
+    padding: 16px;
+    width: 100%;
+  }
 `;
 
 const TextArea = styled.textarea`
@@ -101,18 +119,18 @@ const Button = styled.button`
   padding: 16px;
   font-size: 16px;
   font-weight: 700;
-  color: #09090E;
+  color: white;
   background: ${({ theme }) => theme.primary};
   border: none;
   border-radius: 12px;
   cursor: pointer;
-  box-shadow: 0px 8px 15px rgba(0, 255, 157, 0.2);
+  box-shadow: 0 4px 10px ${({ theme }) => theme.shadow};
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   margin-top: 10px;
 
   &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0px 15px 20px rgba(0, 255, 157, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px ${({ theme }) => theme.shadow};
   }
 `;
 
@@ -123,6 +141,13 @@ const ContactGrid = styled.div`
   align-items: center;
   gap: 22px;
   padding: 0px 16px;
+  width: 100%;
+  max-width: 400px;
+
+  @media (max-width: 600px) {
+    padding: 0px 8px;
+    gap: 14px;
+  }
 `;
 
 const ContactCard = styled.a`
@@ -135,16 +160,22 @@ const ContactCard = styled.a`
   background-color: ${({ theme }) => theme.card};
   border: 1px solid ${({ theme }) => theme.text_secondary + 20};
   border-radius: 18px;
-  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 12px ${({ theme }) => theme.shadow};
   color: ${({ theme }) => theme.text_primary};
   text-decoration: none;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 
   &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0px 15px 30px rgba(182, 36, 255, 0.15);
-    border-color: ${({ theme }) => theme.secondary + 50};
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px ${({ theme }) => theme.shadow};
+    border-color: ${({ theme }) => theme.primary}50;
+  }
+
+  @media (max-width: 600px) {
+    width: 100%;
+    max-width: 100%;
+    padding: 16px;
   }
 `;
 

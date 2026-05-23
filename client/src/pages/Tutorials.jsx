@@ -40,8 +40,8 @@ const VideoGrid = styled.div`
 `;
 
 const VideoCard = styled.div`
-  width: 80%;
-  max-width: 300px;
+  width: 300px;
+  max-width: 90vw;
   background-color: ${({ theme }) => theme.card};
   border: 1px solid ${({ theme }) => theme.text_secondary + 20};
   border-radius: 18px;
@@ -54,6 +54,11 @@ const VideoCard = styled.div`
     transform: translateY(-5px);
     box-shadow: 0px 15px 30px rgba(182, 36, 255, 0.15);
     border-color: ${({ theme }) => theme.secondary + 50};
+  }
+
+  @media (max-width: 480px) {
+    width: 100%;
+    max-width: 100%;
   }
 `;
 
@@ -83,23 +88,35 @@ const VideoPlayerContainer = styled.div`
 `;
 
 const VideoPlayer = styled.div`
-  width: 90%;
+  width: 95%;
   max-width: 800px;
   aspect-ratio: 16 / 9;
   background-color: black;
+
+  @media (max-width: 600px) {
+    width: 100%;
+  }
 `;
 
 const CloseButton = styled.button`
   position: absolute;
   top: 16px;
   right: 16px;
-  padding: 8px;
+  padding: 8px 16px;
   font-size: 16px;
   color: white;
   background-color: red;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  z-index: 10;
+
+  @media (max-width: 600px) {
+    top: 8px;
+    right: 8px;
+    font-size: 14px;
+    padding: 6px 12px;
+  }
 `;
 const TutorialTitle = styled.div`
   font-weight: 600;

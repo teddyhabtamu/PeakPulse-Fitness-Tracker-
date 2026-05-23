@@ -14,10 +14,21 @@ async function initSchema() {
         name VARCHAR(255) NOT NULL,
         email VARCHAR(255) UNIQUE NOT NULL,
         password VARCHAR(255) NOT NULL,
+        google_id VARCHAR(255) UNIQUE,
+        reset_token VARCHAR(255),
+        reset_token_expiry TIMESTAMP,
         created_at TIMESTAMP DEFAULT NOW()
       );
     `);
     console.log("Created users table");
+
+    await pool.query(`
+      ALTER TABLE users
+      ADD COLUMN IF NOT EXISTS google_id VARCHAR(255) UNIQUE,
+      ADD COLUMN IF NOT EXISTS reset_token VARCHAR(255),
+      ADD COLUMN IF NOT EXISTS reset_token_expiry TIMESTAMP;
+    `);
+    console.log("Added auth columns to users table");
 
     await pool.query(`
       CREATE TABLE IF NOT EXISTS Workout (

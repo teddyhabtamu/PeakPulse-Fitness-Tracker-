@@ -23,6 +23,21 @@ export const signup = (name, email, password) => {
   return api.post("/auth/signup", { name, email, password });
 };
 
+// Forgot Password API
+export const forgotPassword = (email) => {
+  return api.post("/auth/forgot-password", { email });
+};
+
+// Reset Password API
+export const resetPassword = (token, password) => {
+  return api.post("/auth/reset-password", { token, password });
+};
+
+// Google OAuth API
+export const googleAuth = (credential) => {
+  return api.post("/auth/google", { credential });
+};
+
 // Protected Route Example
 export const getProtectedData = () => {
   return api.get("/auth/protected-route");

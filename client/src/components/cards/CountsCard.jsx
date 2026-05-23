@@ -42,6 +42,10 @@ const Card = styled.div`
       opacity: 1;
     }
   }
+
+  @media (max-width: 600px) {
+    padding: 20px;
+  }
 `;
 
 const Left = styled.div`
@@ -67,6 +71,10 @@ const Value = styled.div`
   gap: 8px;
   color: ${({ theme }) => theme.text_primary};
   line-height: 1;
+
+  @media (max-width: 600px) {
+    font-size: 28px;
+  }
 `;
 
 const Unit = styled.span`
@@ -114,7 +122,7 @@ const Desc = styled.div`
   margin-top: 4px;
 `;
 
-const CountsCard = ({ item, data }) => {
+const CountsCard = ({ item, data, trends }) => {
   const formatNumber = (number) => {
     if (number !== undefined && number !== null) {
       return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -124,27 +132,26 @@ const CountsCard = ({ item, data }) => {
 
   let value = 0;
   switch (item.key) {
-    case "totalCaloriesBurnt":
-      value = data.dailyStats.reduce(
-        (acc, stat) => acc + stat.calories_burned,
-        0
-      );
-      break;
     case "totalWorkouts":
       value = data.workoutStats.length;
       break;
-    case "avgCaloriesBurntPerWorkout":
-      const totalCalories = data.workoutStats.reduce(
-        (acc, stat) => acc + stat.calories_burned,
+    case "totalDuration":
+      value = data.workoutStats.reduce((acc, w) => acc + (Number(w.duration) || 0), 0);
+      break;
+    case "totalVolume":
+      value = data.workoutStats.reduce(
+        (acc, w) => acc + (Number(w.sets) || 0) * (Number(w.reps) || 0) * (Number(w.weight) || 0),
         0
       );
-      const totalWorkouts = data.workoutStats.length;
-      value = totalWorkouts > 0 ? Math.round(totalCalories / totalWorkouts) : 0;
       break;
     default:
       value = 0;
       break;
   }
+
+  const trendValue = trends && item.trendKey ? trends[item.trendKey] : null;
+  const hasTrend = trendValue !== null && trendValue !== undefined;
+  const trendLabel = hasTrend ? (trendValue > 0 ? `+${trendValue}%` : `${trendValue}%`) : null;
 
   return (
     <Card accentColor={item.lightColor}>
@@ -154,8 +161,10 @@ const CountsCard = ({ item, data }) => {
           {formatNumber(value)}
           <Unit>{item.unit}</Unit>
         </Value>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <Trend positive>+10%</Trend>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
+          {hasTrend && (
+            <Trend positive={trendValue >= 0}>{trendLabel}</Trend>
+          )}
           <Desc>{item.desc}</Desc>
         </div>
       </Left>

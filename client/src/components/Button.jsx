@@ -3,8 +3,8 @@ import React from "react";
 import styled from "styled-components";
 
 const Button = styled.div`
-  border-radius: 12px;
-  color: ${({ type }) => type === "secondary" ? "white" : "#09090E"};
+  border-radius: 8px;
+  color: ${({ type, theme }) => type === "secondary" ? theme.button_text_secondary : theme.button_text_primary};
   font-weight: 700;
   font-size: 14px;
   cursor: pointer;
@@ -15,7 +15,7 @@ const Button = styled.div`
   gap: 6px;
   height: min-content;
   padding: 16px 26px;
-  box-shadow: 0px 8px 15px rgba(0, 255, 157, 0.2);
+  box-shadow: 0px 4px 10px ${({ type, theme }) => type === "secondary" ? theme.secondary + '40' : theme.primary + '40'};
   @media (max-width: 600px) {
     padding: 8px 12px;
   }
@@ -25,15 +25,14 @@ const Button = styled.div`
       ? `
   background: ${theme.secondary};
   border: 1px solid ${theme.secondary};
-  box-shadow: 0px 8px 15px rgba(182, 36, 255, 0.2);
   `
       : `
   background: ${theme.primary};
 `}
 
   &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0px 15px 20px ${({ type }) => type === "secondary" ? "rgba(182, 36, 255, 0.4)" : "rgba(0, 255, 157, 0.4)"};
+    transform: translateY(-2px);
+    box-shadow: 0px 8px 15px ${({ type, theme }) => type === "secondary" ? theme.secondary + '60' : theme.primary + '60'};
   }
 
   ${({ isDisabled }) =>

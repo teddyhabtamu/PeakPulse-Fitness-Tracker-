@@ -1,18 +1,17 @@
-import FitnessCenterRounded from "@mui/icons-material/FitnessCenterRounded";
-import TimelapseRounded from "@mui/icons-material/TimelapseRounded";
 import React from "react";
 import styled from "styled-components";
+import { FiActivity, FiClock, FiTarget } from "react-icons/fi";
 
 const Card = styled.div`
-  padding: 20px 24px;
-  border: 1px solid ${({ theme }) => theme.text_secondary + "20"};
-  border-radius: 20px;
+  padding: 20px;
+  border: 1px solid ${({ theme }) => theme.border};
+  border-radius: 16px;
   background: ${({ theme }) => theme.card};
-  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0px 4px 12px ${({ theme }) => theme.shadow};
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+  gap: 16px;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   position: relative;
   overflow: hidden;
 
@@ -22,20 +21,16 @@ const Card = styled.div`
     top: 0;
     left: 0;
     right: 0;
-    height: 3px;
-    background: linear-gradient(
-      90deg,
-      ${({ theme }) => theme.secondary},
-      ${({ theme }) => theme.primary}
-    );
+    height: 4px;
+    background: ${({ theme }) => theme.primary};
     opacity: 0;
     transition: opacity 0.3s ease;
   }
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 0px 12px 30px rgba(182, 36, 255, 0.12);
-    border-color: ${({ theme }) => theme.secondary + "40"};
+    box-shadow: 0px 12px 24px ${({ theme }) => theme.shadow};
+    border-color: ${({ theme }) => theme.primary}40;
 
     &::before {
       opacity: 1;
@@ -47,16 +42,38 @@ const Card = styled.div`
   }
 `;
 
+const HeaderRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+`;
+
 const Category = styled.div`
-  width: fit-content;
   font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.8px;
   font-weight: 700;
   color: ${({ theme }) => theme.primary};
-  background: ${({ theme }) => theme.primary + "18"};
-  padding: 5px 12px;
-  border-radius: 20px;
+  background: ${({ theme }) => theme.primary}15;
+  padding: 4px 10px;
+  border-radius: 8px;
+`;
+
+const VolumeBadge = styled.div`
+  font-size: 11px;
+  font-weight: 600;
+  color: ${({ theme }) => theme.text_secondary};
+  background: ${({ theme }) => theme.bg};
+  border: 1px solid ${({ theme }) => theme.border};
+  padding: 4px 8px;
+  border-radius: 8px;
+`;
+
+const ContentArea = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 `;
 
 const Name = styled.div`
@@ -75,46 +92,58 @@ const Sets = styled.div`
 const Divider = styled.div`
   width: 100%;
   height: 1px;
-  background: ${({ theme }) => theme.text_secondary + "20"};
+  background: ${({ theme }) => theme.border};
 `;
 
-const Flex = styled.div`
+const StatsRow = styled.div`
   display: flex;
-  gap: 20px;
+  justify-content: space-between;
+  align-items: center;
 `;
 
-const Details = styled.div`
+const Stat = styled.div`
   font-size: 14px;
   color: ${({ theme }) => theme.text_primary};
-  font-weight: 500;
+  font-weight: 600;
   display: flex;
   align-items: center;
   gap: 6px;
 
   svg {
-    color: ${({ theme }) => theme.primary};
+    color: ${({ theme }) => theme.text_secondary};
   }
 `;
 
 const WorkoutCard = ({ workout }) => {
+  const sets = parseInt(workout.sets) || 0;
+  const reps = parseInt(workout.reps) || 0;
+  const weight = parseFloat(workout.weight) || 0;
+  const volume = sets * reps * weight;
+
   return (
     <Card>
-      <Category>{workout.category}</Category>
-      <Name>{workout.workout_name}</Name>
-      <Sets>
-        {workout.sets} sets × {workout.reps} reps
-      </Sets>
+      <HeaderRow>
+        <Category>{workout.category}</Category>
+        {volume > 0 && <VolumeBadge>{volume.toLocaleString()} kg total</VolumeBadge>}
+      </HeaderRow>
+      
+      <ContentArea>
+        <Name>{workout.workout_name}</Name>
+        <Sets>{sets} sets × {reps} reps</Sets>
+      </ContentArea>
+      
       <Divider />
-      <Flex>
-        <Details>
-          <FitnessCenterRounded sx={{ fontSize: "18px" }} />
+      
+      <StatsRow>
+        <Stat>
+          <FiTarget size={16} />
           {workout.weight} kg
-        </Details>
-        <Details>
-          <TimelapseRounded sx={{ fontSize: "18px" }} />
+        </Stat>
+        <Stat>
+          <FiClock size={16} />
           {workout.duration} min
-        </Details>
-      </Flex>
+        </Stat>
+      </StatsRow>
     </Card>
   );
 };

@@ -36,12 +36,12 @@ const Title = styled.div`
 `;
 
 const WeeklyStatCard = ({ data }) => {
-  console.log("Weekly Stats Data:", data.weeklyStats);
+  const hasWeeklyData = data?.weeklyStats?.length > 0;
 
   return (
     <Card>
-      <Title>Weekly Calories Burned</Title>
-      {data?.weeklyStats && data.weeklyStats.length > 0 && (
+      <Title>Weekly Activity</Title>
+      {hasWeeklyData ? (
         <BarChart
           sx={{
             "& .MuiChartsAxis-tickLabel": { fill: "#AFAFB5 !important" },
@@ -51,14 +51,18 @@ const WeeklyStatCard = ({ data }) => {
           xAxis={[
             {
               scaleType: "band",
-              data: data.weeklyStats.map((stat) => `Week ${stat.week}`),
+              data: data.weeklyStats.map((_, i) => `W${i + 1}`),
             },
           ]}
           series={[
-            { data: data.weeklyStats.map((stat) => stat.calories_burned) },
+            { data: data.weeklyStats.map((stat) => Number(stat.calories_burned) || 0) },
           ]}
           height={300}
         />
+      ) : (
+        <div style={{ color: "#AFAFB5", fontSize: 14, padding: "40px 0", textAlign: "center" }}>
+          No weekly data yet
+        </div>
       )}
     </Card>
   );

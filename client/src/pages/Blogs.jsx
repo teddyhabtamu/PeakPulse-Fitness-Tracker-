@@ -1,17 +1,23 @@
 import React, { useState, useEffect } from "react";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import BlogCard from "../components/cards/BlogCard";
 import BlogForm from "../components/BlogForm";
+import Button from "../components/Button";
 import api from "../utils/api";
+import { FiPlus, FiSearch } from "react-icons/fi";
+
+const fadeInUp = keyframes`
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
 
 const Container = styled.div`
   flex: 1;
   height: 100%;
   display: flex;
   justify-content: center;
-  padding: 22px 0px;
+  padding: 32px 0px;
   overflow-y: scroll;
-  background-color: ${({ theme }) => theme.background};
 `;
 
 const Wrapper = styled.div`
@@ -19,74 +25,187 @@ const Wrapper = styled.div`
   max-width: 1000px;
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 24px;
+  padding: 0 24px;
   @media (max-width: 600px) {
-    gap: 12px;
+    gap: 16px;
     padding: 0 16px;
   }
 `;
 
-const Title = styled.div`
-  font-size: 32px;
-  color: ${({ theme }) => theme.text_primary};
-  font-weight: 700;
-  text-align: center;
-  margin-bottom: 40px;
+const HeaderContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+  animation: ${fadeInUp} 0.5s ease;
 `;
 
-const ToggleButton = styled.button`
-  padding: 12px 20px;
-  font-size: 14px;
-  font-weight: 700;
-  color: #09090E;
-  background: ${({ theme }) => theme.primary};
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  position: fixed;
-  top: 100px;
-  right: 20px;
-  z-index: 100;
-  box-shadow: 0px 8px 15px rgba(0, 255, 157, 0.2);
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+const HeaderTop = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
 
-  &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0px 15px 20px rgba(0, 255, 157, 0.4);
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+`;
+
+const TitleSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+const Title = styled.h1`
+  font-size: 36px;
+  color: ${({ theme }) => theme.text_primary};
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: -1px;
+`;
+
+const Subtitle = styled.p`
+  font-size: 16px;
+  color: ${({ theme }) => theme.text_secondary};
+  margin: 0;
+`;
+
+const SearchContainer = styled.div`
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+`;
+
+const SearchIcon = styled(FiSearch)`
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: ${({ theme }) => theme.text_secondary};
+  font-size: 18px;
+`;
+
+const SearchInput = styled.input`
+  width: 100%;
+  padding: 14px 14px 14px 44px;
+  border-radius: 12px;
+  border: 1px solid ${({ theme }) => theme.border};
+  background: ${({ theme }) => theme.input_bg};
+  color: ${({ theme }) => theme.text_primary};
+  font-size: 15px;
+  outline: none;
+  transition: all 0.2s ease;
+
+  &:focus {
+    border-color: ${({ theme }) => theme.primary};
+    box-shadow: 0 0 0 3px ${({ theme }) => theme.primary}20;
+  }
+
+  &::placeholder {
+    color: ${({ theme }) => theme.text_secondary};
+  }
+`;
+
+const BlogGrid = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  animation: ${fadeInUp} 0.6s ease;
+`;
+
+const EmptyState = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  background: ${({ theme }) => theme.card};
+  border: 1px dashed ${({ theme }) => theme.border};
+  border-radius: 16px;
+  gap: 16px;
+
+  h3 {
+    margin: 0;
+    color: ${({ theme }) => theme.text_primary};
+  }
+  p {
+    margin: 0;
+    color: ${({ theme }) => theme.text_secondary};
   }
 `;
 
 const Blogs = () => {
   const [posts, setPosts] = useState([]);
+  const [filteredPosts, setFilteredPosts] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [showForm, setShowForm] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  // Fetch blog posts from the backend
   const fetchBlogPosts = async () => {
     try {
+      setLoading(true);
       const response = await api.get("/blog");
       setPosts(response.data);
+      setFilteredPosts(response.data);
     } catch (error) {
       console.error("Error fetching blog posts:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Fetch blog posts when the component mounts
   useEffect(() => {
     fetchBlogPosts();
   }, []);
 
-  // Add a new blog post to the state
+  useEffect(() => {
+    if (searchQuery.trim() === "") {
+      setFilteredPosts(posts);
+    } else {
+      const lowercasedQuery = searchQuery.toLowerCase();
+      const filtered = posts.filter(
+        (post) =>
+          post.title.toLowerCase().includes(lowercasedQuery) ||
+          post.content.toLowerCase().includes(lowercasedQuery)
+      );
+      setFilteredPosts(filtered);
+    }
+  }, [searchQuery, posts]);
+
   const addPost = (post) => {
-    setPosts([post, ...posts]); // Add the new post to the beginning of the list
+    setPosts([post, ...posts]);
   };
 
   return (
     <Container>
       <Wrapper>
-        <Title>Fitness Blog</Title>
-        <ToggleButton onClick={() => setShowForm(true)}>
-          Post a Blog
-        </ToggleButton>
+        <HeaderContainer>
+          <HeaderTop>
+            <TitleSection>
+              <Title>Community Hub</Title>
+              <Subtitle>Read stories, tips, and insights from the fitness community.</Subtitle>
+            </TitleSection>
+            <Button
+              text="Write a Post"
+              leftIcon={<FiPlus size={18} />}
+              onClick={() => setShowForm(true)}
+            />
+          </HeaderTop>
+          <SearchContainer>
+            <SearchIcon />
+            <SearchInput
+              type="text"
+              placeholder="Search by title or keyword..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </SearchContainer>
+        </HeaderContainer>
+
         {showForm && (
           <BlogForm
             addPost={addPost}
@@ -94,9 +213,27 @@ const Blogs = () => {
             fetchBlogPosts={fetchBlogPosts}
           />
         )}
-        {posts.map((post) => (
-          <BlogCard key={post.post_id} post={post} />
-        ))}
+
+        {loading ? (
+          <EmptyState>
+            <p>Loading posts...</p>
+          </EmptyState>
+        ) : filteredPosts.length > 0 ? (
+          <BlogGrid>
+            {filteredPosts.map((post) => (
+              <BlogCard key={post.post_id} post={post} />
+            ))}
+          </BlogGrid>
+        ) : (
+          <EmptyState>
+            <h3>No posts found</h3>
+            <p>
+              {searchQuery
+                ? "Try adjusting your search query."
+                : "Be the first to share your fitness journey!"}
+            </p>
+          </EmptyState>
+        )}
       </Wrapper>
     </Container>
   );

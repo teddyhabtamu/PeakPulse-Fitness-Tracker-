@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Route,
@@ -6,7 +6,8 @@ import {
   Navigate,
 } from "react-router-dom";
 import { ThemeProvider, styled } from "styled-components";
-import { darkTheme } from "./utils/Themes";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import { lightTheme, darkTheme } from "./utils/Themes";
 import Authentication from "./pages/Authentication";
 import Navbar from "./components/Navbar";
 import Dashboard from "./pages/Dashboard";
@@ -15,6 +16,7 @@ import Tutorials from "./pages/Tutorials";
 import Blogs from "./pages/Blogs";
 import Contact from "./pages/Contact";
 import Home from "./pages/Home";
+import ProfileSettings from "./pages/ProfileSettings";
 
 const Container = styled.div`
   width: 100%;
@@ -24,59 +26,107 @@ const Container = styled.div`
   background: ${({ theme }) => theme.bg};
   color: ${({ theme }) => theme.text_primary};
   overflow-x: hidden;
-  overflow-y: hidden;
-  transition: all 0.2s ease;
+  transition: background 0.25s ease, color 0.25s ease;
+`;
+
+const PageContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  transition: margin-left 0.3s ease;
+
+  @media (min-width: 769px) {
+    margin-left: ${({ collapsed }) => collapsed ? "64px" : "260px"};
+  }
+
+  @media (max-width: 768px) {
+    padding-top: 56px;
+  }
 `;
 
 function App() {
-  const [user, setUser] = useState(null); // null means no user is logged in
+  const [user, setUser] = useState(null);
+  const [themeMode, setThemeMode] = useState("light");
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  const handleLogin = (userData) => {
-    setUser(userData); // Set user data after successful login
+  const loadUserFromStorage = () => {
+    const token = localStorage.getItem("token");
+    const name = localStorage.getItem("user_name");
+    const email = localStorage.getItem("user_email");
+    if (token) {
+      setUser({ token, name: name || "User", email: email || "" });
+    }
   };
 
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) setThemeMode(savedTheme);
+
+    loadUserFromStorage();
+
+    window.addEventListener("user-profile-updated", loadUserFromStorage);
+    return () => window.removeEventListener("user-profile-updated", loadUserFromStorage);
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = themeMode === "light" ? "dark" : "light";
+    setThemeMode(newTheme);
+    localStorage.setItem("theme", newTheme);
+  };
+
+  const toggleSidebar = () => setSidebarCollapsed((prev) => !prev);
+
+  const handleLogin = (userData) => setUser(userData);
   const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user_name");
+    localStorage.removeItem("user_email");
     setUser(null);
   };
 
   return (
-    <ThemeProvider theme={darkTheme}>
+    <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID || ""}>
+    <ThemeProvider theme={themeMode === "light" ? lightTheme : darkTheme}>
       <Router>
         <Container>
           {user ? (
-            <Container>
-              <Navbar currentUser={user} onLogout={handleLogout} />
-              <Routes>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/workouts" element={<Workouts />} />
-                <Route path="/tutorials" element={<Tutorials />} />
-                <Route path="/blogs" element={<Blogs />} />
-                <Route path="/contact" element={<Contact />} />
-              </Routes>
-            </Container>
+            <>
+              <Navbar
+                currentUser={user}
+                onLogout={handleLogout}
+                themeMode={themeMode}
+                toggleTheme={toggleTheme}
+                collapsed={sidebarCollapsed}
+                onToggleCollapse={toggleSidebar}
+              />
+              <PageContent collapsed={sidebarCollapsed}>
+                <Routes>
+                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/workouts" element={<Workouts />} />
+                  <Route path="/tutorials" element={<Tutorials />} />
+                  <Route path="/blogs" element={<Blogs />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/profile" element={<ProfileSettings />} />
+                  <Route path="*" element={<Navigate to="/" />} />
+                </Routes>
+              </PageContent>
+            </>
           ) : (
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route
-                path="/signin"
-                element={
-                  <Authentication onLogin={handleLogin} formType="signin" />
-                }
-              />
-              <Route
-                path="/signup"
-                element={
-                  <Authentication onLogin={handleLogin} formType="signup" />
-                }
-              />
-              <Route path="*" element={<Navigate to="/" />} />{" "}
-              {/* Default route */}
+              <Route path="/signin" element={<Authentication onLogin={handleLogin} formType="signin" />} />
+              <Route path="/signup" element={<Authentication onLogin={handleLogin} formType="signup" />} />
+              <Route path="/forgot-password" element={<Authentication formType="forgot-password" />} />
+              <Route path="/reset-password/:token" element={<Authentication formType="reset-password" />} />
+              <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           )}
         </Container>
       </Router>
     </ThemeProvider>
+    </GoogleOAuthProvider>
   );
 }
 
 export default App;
+

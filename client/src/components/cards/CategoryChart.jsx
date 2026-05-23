@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { PieChart } from "@mui/x-charts/PieChart";
 
@@ -12,6 +12,7 @@ const Card = styled.div`
   box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.4);
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 6px;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 
@@ -19,6 +20,11 @@ const Card = styled.div`
     transform: translateY(-5px);
     box-shadow: 0px 15px 30px rgba(0, 255, 157, 0.15);
     border-color: ${({ theme }) => theme.primary + 50};
+  }
+
+  .MuiChartsLegend-root text,
+  .MuiChartsLegend-root tspan {
+    fill: ${({ theme }) => theme.text_primary} !important;
   }
 
   @media (max-width: 600px) {
@@ -35,40 +41,69 @@ const Title = styled.div`
   }
 `;
 
-const CategoryChart = ({ data }) => {
-  // Log data to verify its structure and contents
-  console.log("Category Chart Data:", data);
+const COLORS = ["#00FF9D", "#B624FF", "#FF8C00", "#F2FF00", "#FF3366", "#00AEFF"];
 
-  // Extract pieChartData from data (assuming it is structured correctly)
-  const pieChartData = data?.weeklyStats.map((item) => ({
-    value: item.calories_burned,
-    label: `Week ${item.week}`,
+const CategoryChart = ({ data }) => {
+  const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => setScreenWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const isMobile = screenWidth <= 600;
+  const isTablet = screenWidth <= 900;
+
+  const outerRadius = isMobile ? 65 : isTablet ? 75 : 95;
+  const chartHeight = isMobile ? 310 : isTablet ? 330 : 370;
+  const chartMargin = { top: 10, right: 20, bottom: 120, left: 20 };
+
+  const legendProps = {
+    direction: "row",
+    position: { vertical: "bottom", horizontal: "middle" },
+    itemMarkWidth: isMobile ? 10 : 12,
+    itemMarkHeight: isMobile ? 10 : 12,
+    labelStyle: { fontSize: isMobile ? 11 : 12 },
+  };
+
+  const categoryCounts = {};
+  (data?.workouts || []).forEach((w) => {
+    const cat = w.category || "Other";
+    categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
+  });
+
+  const pieChartData = Object.entries(categoryCounts).map(([label, value], i) => ({
+    id: i,
+    value,
+    label,
+    color: COLORS[i % COLORS.length],
   }));
 
-  // Check if pieChartData is available
-  const hasPieChartData = pieChartData && pieChartData.length > 0;
+  const hasPieChartData = pieChartData.length > 0;
 
   return (
     <Card>
-      <Title>Category Chart</Title>
+      <Title>Workout Categories</Title>
       {hasPieChartData ? (
         <PieChart
-          sx={{
-            "& .MuiChartsLegend-series text": { fill: "#FFFFFF !important" },
-          }}
           series={[
             {
               data: pieChartData,
               innerRadius: 20,
-              outerRadius: 100,
+              outerRadius,
               paddingAngle: 5,
               cornerRadius: 5,
             },
           ]}
-          height={300}
+          height={chartHeight}
+          margin={chartMargin}
+          slotProps={{ legend: legendProps }}
         />
       ) : (
-        <div>No data available for pie chart.</div>
+        <div style={{ color: "#AFAFB5", fontSize: 14, padding: "40px 0", textAlign: "center" }}>
+          Add workouts to see category breakdown
+        </div>
       )}
     </Card>
   );

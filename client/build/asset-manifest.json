@@ -1,8 +1,7 @@
 {
   "files": {
-    "main.css": "/static/css/main.674ff6d2.css",
-    "main.js": "/static/js/main.e29c1a48.js",
-    "static/media/AuthImage.jpg": "/static/media/AuthImage.4a89d3a73ccc9ead1b58.jpg",
+    "main.css": "/static/css/main.7cf8802d.css",
+    "main.js": "/static/js/main.21c648e7.js",
     "static/media/Logo.png": "/static/media/Logo.3409443e8c39e6129898.png",
     "static/media/hero3.png": "/static/media/hero3.e60c629791ffec7483f8.png",
     "static/media/TwitterIcon.svg": "/static/media/TwitterIcon.e72e98622a10156cf81fa327f5d868d6.svg",
@@ -10,11 +9,11 @@
     "static/media/InstagramIcon.svg": "/static/media/InstagramIcon.c8c4e1d9e0357636a77c83a26f4e9b8c.svg",
     "static/media/PhoneIcon.svg": "/static/media/PhoneIcon.0c9fd45a1962c835f4ad54851d487834.svg",
     "static/media/FacebookIcon.svg": "/static/media/FacebookIcon.2eaf5610345a03d6f622e2cb96ca80ba.svg",
-    "main.674ff6d2.css.map": "/static/css/main.674ff6d2.css.map",
-    "main.e29c1a48.js.map": "/static/js/main.e29c1a48.js.map"
+    "main.7cf8802d.css.map": "/static/css/main.7cf8802d.css.map",
+    "main.21c648e7.js.map": "/static/js/main.21c648e7.js.map"
   },
   "entrypoints": [
-    "static/css/main.674ff6d2.css",
-    "static/js/main.e29c1a48.js"
+    "static/css/main.7cf8802d.css",
+    "static/js/main.21c648e7.js"
   ]
 }

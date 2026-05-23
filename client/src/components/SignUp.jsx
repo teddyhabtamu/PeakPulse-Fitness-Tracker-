@@ -1,38 +1,198 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import TextInput from "./TextInput";
-import { signup } from "../utils/api";
+import { signup, googleAuth } from "../utils/api";
 import { useNavigate } from "react-router-dom";
-import Button from "./Button";
-import { MdWavingHand } from "react-icons/md";
+import { FaArrowRight, FaGoogle } from "react-icons/fa";
+import { GoogleLogin } from "@react-oauth/google";
 
 const Container = styled.div`
   width: 100%;
-  max-width: 500px;
   display: flex;
   flex-direction: column;
-  gap: 36px;
+  gap: 28px;
 `;
 
-const Title = styled.div`
-  font-size: 30px;
+const Header = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+`;
+
+const Title = styled.h2`
+  font-size: 26px;
   font-weight: 800;
   color: ${({ theme }) => theme.text_primary};
+  margin: 0;
+  letter-spacing: -0.5px;
 `;
 
-const Span = styled.div`
-  font-size: 16px;
+const Subtitle = styled.p`
+  font-size: 14px;
+  color: ${({ theme }) => theme.text_secondary};
+  margin: 0;
   font-weight: 400;
-  color: ${({ theme }) => theme.text_secondary + 90};
 `;
 
-const SignUp = () => {
+const StyledForm = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+`;
+
+const SubmitButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 28px;
+  background: linear-gradient(135deg, #174657, #0F2C38);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 14px rgba(23, 70, 87, 0.25);
+  font-family: inherit;
+  margin-top: 4px;
+
+  svg {
+    transition: transform 0.3s ease;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(23, 70, 87, 0.35);
+
+    svg {
+      transform: translateX(4px);
+    }
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+  }
+`;
+
+const ErrorMsg = styled.div`
+  background: rgba(239, 68, 68, 0.08);
+  color: #EF4444;
+  font-size: 13px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  font-weight: 500;
+`;
+
+const Terms = styled.p`
+  font-size: 12px;
+  color: ${({ theme }) => theme.text_secondary};
+  text-align: center;
+  margin: 0;
+  line-height: 1.5;
+
+  a {
+    color: #174657;
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+`;
+
+const Divider = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 0;
+
+  &::before,
+  &::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: ${({ theme }) => theme.text_secondary}33;
+  }
+
+  span {
+    font-size: 12px;
+    color: ${({ theme }) => theme.text_secondary};
+    font-weight: 500;
+    white-space: nowrap;
+  }
+`;
+
+const GoogleButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 13px 28px;
+  background: ${({ theme }) => theme.card};
+  color: ${({ theme }) => theme.text_primary};
+  border: 1px solid ${({ theme }) => theme.text_secondary}33;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+
+  svg {
+    color: #DB4437;
+  }
+
+  &:hover {
+    background: ${({ theme }) => theme.text_secondary}11;
+    border-color: ${({ theme }) => theme.text_secondary}55;
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+`;
+
+const SignUp = ({ onLogin }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const navigate = useNavigate();
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setGoogleLoading(true);
+    setError("");
+    try {
+      const response = await googleAuth(credentialResponse.credential);
+      const { token, name: userName, email: userEmail } = response.data;
+      localStorage.setItem("token", token);
+      localStorage.setItem("user_name", userName || "");
+      localStorage.setItem("user_email", userEmail || "");
+      if (onLogin) onLogin({ token, name: userName, email: userEmail });
+      navigate("/");
+    } catch (err) {
+      setError(
+        err.response?.data?.message || "Google sign-up failed. Please try again."
+      );
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    setError("Google sign-up was cancelled or failed.");
+  };
 
   const handleChangeName = (e) => setName(e.target.value);
   const handleChangeEmail = (e) => setEmail(e.target.value);
@@ -45,12 +205,10 @@ const SignUp = () => {
       return;
     }
     setLoading(true);
-    setError(""); // Clear any previous errors
+    setError("");
     try {
-      const response = await signup(name, email, password);
-      console.log("Sign Up Success:", response.data);
-      console.log("navigating");
-      navigate("/signin"); // Redirect to the sign-in page after successful signup
+      await signup(name, email, password);
+      navigate("/signin");
     } catch (error) {
       if (
         error.response &&
@@ -69,43 +227,59 @@ const SignUp = () => {
 
   return (
     <Container>
-      <div>
-        <Title>Create New Account <MdWavingHand style={{ color: "#FFD700" }} /></Title>
-        <Span>Please enter details to create a new account</Span>
-      </div>
-      <form
-        onSubmit={handleSubmit}
-        style={{ display: "flex", gap: "20px", flexDirection: "column" }}
-      >
+      <Header>
+        <Title>Create your account</Title>
+        <Subtitle>Start tracking your fitness journey today</Subtitle>
+      </Header>
+      <StyledForm onSubmit={handleSubmit}>
         <TextInput
-          label="Full name"
-          placeholder="Enter your full name"
+          label="Full Name"
+          placeholder="John Doe"
           value={name}
           handleChange={handleChangeName}
         />
         <TextInput
           label="Email Address"
-          placeholder="Enter your email address"
+          placeholder="you@example.com"
           type="email"
           value={email}
           handleChange={handleChangeEmail}
         />
         <TextInput
           label="Password"
-          placeholder="Enter your password"
+          placeholder="Create a strong password"
           password
           value={password}
           handleChange={handleChangePassword}
           autoComplete="off"
         />
-        {error && <div style={{ color: "red" }}>{error}</div>}
-        <Button 
-          text={loading ? "Loading..." : "Sign Up"} 
-          isLoading={loading} 
-          isDisabled={loading} 
-          onClick={handleSubmit} 
-        />
-      </form>
+        {error && <ErrorMsg>{error}</ErrorMsg>}
+        <SubmitButton type="submit" disabled={loading}>
+          {loading ? "Creating account..." : "Create Account"}
+          {!loading && <FaArrowRight size={14} />}
+        </SubmitButton>
+        <Divider><span>or continue with</span></Divider>
+        {googleLoading ? (
+          <GoogleButton type="button" disabled>
+            <FaGoogle size={16} />
+            Signing up...
+          </GoogleButton>
+        ) : (
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={handleGoogleError}
+            shape="pill"
+            size="large"
+            width="100%"
+            text="signup_with"
+          />
+        )}
+        <Terms>
+          By signing up, you agree to our{" "}
+          <a href="#">Terms of Service</a> and{" "}
+          <a href="#">Privacy Policy</a>
+        </Terms>
+      </StyledForm>
     </Container>
   );
 };
