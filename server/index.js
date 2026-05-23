@@ -356,8 +356,10 @@ app.get("/api/dashboard", async (req, res) => {
       weekStart.setDate(d.getDate() - d.getDay());
       const weekKey = weekStart.toISOString().split("T")[0];
       if (!weeklyMap[weekKey]) {
-        weeklyMap[weekKey] = { id: Object.keys(weeklyMap).length + 1, user_id: userId, calories_burned: 0, week_start_date: weekKey };
+        weeklyMap[weekKey] = { id: Object.keys(weeklyMap).length + 1, user_id: userId, total_duration: 0, workout_count: 0, week_start_date: weekKey };
       }
+      weeklyMap[weekKey].total_duration += Number(w.duration) || 0;
+      weeklyMap[weekKey].workout_count += 1;
     });
     const weeklyStats = Object.values(weeklyMap);
 

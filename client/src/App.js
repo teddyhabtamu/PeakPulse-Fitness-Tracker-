@@ -49,16 +49,29 @@ function App() {
   const [themeMode, setThemeMode] = useState("light");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  const loadUserFromStorage = () => {
-    const token = localStorage.getItem("token");
-    const name = localStorage.getItem("user_name");
-    const email = localStorage.getItem("user_email");
-    if (token) {
-      setUser({ token, name: name || "User", email: email || "" });
-    }
-  };
-
   useEffect(() => {
+    const isTokenExpired = (token) => {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.exp * 1000 < Date.now();
+      } catch {
+        return true;
+      }
+    };
+
+    const loadUserFromStorage = () => {
+      const token = localStorage.getItem("token");
+      const name = localStorage.getItem("user_name");
+      const email = localStorage.getItem("user_email");
+      if (token && !isTokenExpired(token)) {
+        setUser({ token, name: name || "User", email: email || "" });
+      } else if (token) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user_name");
+        localStorage.removeItem("user_email");
+      }
+    };
+
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme) setThemeMode(savedTheme);
 

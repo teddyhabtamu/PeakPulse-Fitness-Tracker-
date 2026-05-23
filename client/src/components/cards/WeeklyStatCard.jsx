@@ -55,7 +55,7 @@ const WeeklyStatCard = ({ data }) => {
             },
           ]}
           series={[
-            { data: data.weeklyStats.map((stat) => Number(stat.calories_burned) || 0) },
+            { data: data.weeklyStats.map((stat) => Number(stat.total_duration) || 0), label: "Minutes" },
           ]}
           height={300}
         />
