@@ -6,6 +6,7 @@ import WeeklyStatCard from "../components/cards/WeeklyStatCard";
 import CategoryChart from "../components/cards/CategoryChart";
 import AddWorkout from "../components/AddWorkout";
 import WorkoutCard from "../components/cards/WorkoutCard";
+import { FaDumbbell, FaWeightHanging, FaFire, FaRunning } from "react-icons/fa";
 
 // ── Animations ──
 const fadeInUp = keyframes`
@@ -258,7 +259,7 @@ const Dashboard = () => {
       desc: "Total calories burned overall",
       color: "#FFFFFF",
       lightColor: "#2D78D1",
-      icon: "💪",
+      icon: <FaFire />,
     },
     {
       name: "Total Workouts",
@@ -267,7 +268,7 @@ const Dashboard = () => {
       desc: "Total number of workouts completed",
       color: "#FFFFFF",
       lightColor: "#FFB300",
-      icon: "🏋️",
+      icon: <FaDumbbell />,
     },
     {
       name: "Avg Calories Per Workout",
@@ -276,7 +277,7 @@ const Dashboard = () => {
       desc: "Average calories burned per workout",
       color: "#FFFFFF",
       lightColor: "#E91E63",
-      icon: "🔥",
+      icon: <FaWeightHanging />,
     },
   ];
 
@@ -320,7 +321,7 @@ const Dashboard = () => {
             ))
           ) : (
             <EmptyState>
-              <EmptyIcon>🏃‍♂️</EmptyIcon>
+              <EmptyIcon><FaRunning /></EmptyIcon>
               <div style={{ fontWeight: 600 }}>No workouts yet today</div>
               <div style={{ fontSize: "14px", opacity: 0.7, maxWidth: "300px" }}>
                 Add a new workout using the form above to start tracking your progress!

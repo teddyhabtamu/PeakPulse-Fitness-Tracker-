@@ -5,6 +5,7 @@ import "./buttonStyle.css";
 import { useNavigate } from "react-router-dom";
 import { login } from "../utils/api";
 import Button from "./Button";
+import { MdWavingHand } from "react-icons/md";
 
 const Container = styled.div`
   width: 100%;
@@ -62,7 +63,7 @@ const SignIn = ({ onLogin }) => {
   return (
     <Container>
       <div>
-        <Title>Sign In 👋</Title>
+        <Title>Sign In <MdWavingHand style={{ color: "#FFD700" }} /></Title>
         <Span>Please enter your credentials to sign in</Span>
       </div>
       <form

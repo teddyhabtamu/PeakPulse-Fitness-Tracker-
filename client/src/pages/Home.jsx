@@ -2,8 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import HeroImage from "../utils/Images/hero3.png";
-import { FaTwitter, FaInstagram, FaLinkedin } from "react-icons/fa";
-
+import { FaTwitter, FaInstagram, FaLinkedin, FaDumbbell, FaChartBar, FaBullseye, FaUsers } from "react-icons/fa";
 const Nav = styled.nav`
   display: flex;
   justify-content: space-between;
@@ -236,28 +235,28 @@ const Home = () => {
 
       <FeatureGrid>
         <FeatureCard>
-          <FeatureIcon>💪</FeatureIcon>
+          <FeatureIcon><FaDumbbell /></FeatureIcon>
           <FeatureTitle>Workout Tracking</FeatureTitle>
           <FeatureDescription>
             Log and monitor your daily exercises with ease.
           </FeatureDescription>
         </FeatureCard>
         <FeatureCard>
-          <FeatureIcon>📊</FeatureIcon>
+          <FeatureIcon><FaChartBar /></FeatureIcon>
           <FeatureTitle>Progress Analytics</FeatureTitle>
           <FeatureDescription>
             Visualize your fitness journey with detailed analytics.
           </FeatureDescription>
         </FeatureCard>
         <FeatureCard>
-          <FeatureIcon>🎯</FeatureIcon>
+          <FeatureIcon><FaBullseye /></FeatureIcon>
           <FeatureTitle>Custom Workouts</FeatureTitle>
           <FeatureDescription>
             Personalized training plans tailored to your goals.
           </FeatureDescription>
         </FeatureCard>
         <FeatureCard>
-          <FeatureIcon>👥</FeatureIcon>
+          <FeatureIcon><FaUsers /></FeatureIcon>
           <FeatureTitle>Community Support</FeatureTitle>
           <FeatureDescription>
             Connect with fitness enthusiasts worldwide.

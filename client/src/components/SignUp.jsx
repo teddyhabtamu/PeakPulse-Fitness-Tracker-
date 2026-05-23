@@ -4,6 +4,7 @@ import TextInput from "./TextInput";
 import { signup } from "../utils/api";
 import { useNavigate } from "react-router-dom";
 import Button from "./Button";
+import { MdWavingHand } from "react-icons/md";
 
 const Container = styled.div`
   width: 100%;
@@ -69,7 +70,7 @@ const SignUp = () => {
   return (
     <Container>
       <div>
-        <Title>Create New Account 👋</Title>
+        <Title>Create New Account <MdWavingHand style={{ color: "#FFD700" }} /></Title>
         <Span>Please enter details to create a new account</Span>
       </div>
       <form
