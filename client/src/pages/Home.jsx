@@ -1,8 +1,20 @@
 import React from "react";
 import styled, { keyframes } from "styled-components";
 import { useNavigate } from "react-router-dom";
-import HeroImage from "../utils/Images/hero3.png";
-import { FaTwitter, FaInstagram, FaLinkedin, FaDumbbell, FaChartBar, FaBullseye, FaUsers, FaArrowRight, FaStar, FaQuoteLeft } from "react-icons/fa";
+import {
+  FaTwitter,
+  FaInstagram,
+  FaLinkedin,
+  FaDumbbell,
+  FaChartBar,
+  FaBullseye,
+  FaUsers,
+  FaArrowRight,
+  FaStar,
+  FaQuoteLeft,
+  FaPlay,
+  FaCheckCircle,
+} from "react-icons/fa";
 
 const fadeUp = keyframes`
   from { opacity: 0; transform: translateY(40px); }
@@ -382,8 +394,9 @@ const ImageCard = styled.div`
   position: relative;
   border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.2);
   background: #FFFFFF;
+  height: 580px;
 
   &::before {
     content: '';
@@ -398,11 +411,20 @@ const ImageCard = styled.div`
     pointer-events: none;
     z-index: 2;
   }
+
+  @media (max-width: 968px) {
+    height: 420px;
+  }
+
+  @media (max-width: 480px) {
+    height: 320px;
+  }
 `;
 
 const StyledImage = styled.img`
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
   display: block;
   border-radius: 24px;
 `;
@@ -574,6 +596,166 @@ const FeatureDescription = styled.p`
   font-size: 0.95rem;
   color: #64748B;
   line-height: 1.7;
+  margin: 0;
+`;
+
+const ShowcaseSection = styled.section`
+  padding: 100px 5%;
+  background: #FFFFFF;
+  overflow: hidden;
+
+  @media (max-width: 600px) {
+    padding: 60px 5%;
+  }
+`;
+
+const ShowcaseGrid = styled.div`
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 24px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const ShowcaseLarge = styled.div`
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  height: 480px;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.6s ease;
+  }
+
+  &:hover img {
+    transform: scale(1.04);
+  }
+
+  @media (max-width: 768px) {
+    height: 360px;
+  }
+
+  @media (max-width: 480px) {
+    height: 260px;
+  }
+`;
+
+const ShowcaseOverlay = styled.div`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 32px 28px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+
+  @media (max-width: 480px) {
+    padding: 20px 16px;
+  }
+`;
+
+const ShowcaseTag = styled.span`
+  display: inline-block;
+  padding: 4px 12px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  border-radius: 6px;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+`;
+
+const ShowcaseTitle = styled.h3`
+  font-size: 20px;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+  letter-spacing: -0.3px;
+
+  @media (max-width: 480px) {
+    font-size: 17px;
+  }
+`;
+
+const ShowcaseRight = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+`;
+
+const ShowcaseSmall = styled.div`
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  height: 228px;
+  flex-shrink: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.6s ease;
+  }
+
+  &:hover img {
+    transform: scale(1.04);
+  }
+
+  @media (max-width: 480px) {
+    height: 180px;
+  }
+`;
+
+const ShowcaseCard = styled.div`
+  flex: 1;
+  background: #FAFBFC;
+  border: 1px solid #F1F5F9;
+  border-radius: 20px;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+
+  @media (max-width: 480px) {
+    padding: 20px 16px;
+  }
+`;
+
+const ShowcaseCardIcon = styled.div`
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, rgba(23, 70, 87, 0.08), rgba(0, 174, 255, 0.08));
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #174657;
+  font-size: 16px;
+`;
+
+const ShowcaseCardTitle = styled.h4`
+  font-size: 16px;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0;
+`;
+
+const ShowcaseCardText = styled.p`
+  font-size: 14px;
+  color: #64748B;
+  line-height: 1.6;
   margin: 0;
 `;
 
@@ -905,7 +1087,7 @@ const Home = () => {
           </HeroContent>
           <HeroImageWrapper>
             <ImageCard>
-              <StyledImage src={HeroImage} alt="PeakPulse Dashboard Interface" />
+              <StyledImage src="/man-doing-sport.jpg" alt="Athlete training with PeakPulse" />
             </ImageCard>
             <Badge1>
               <BadgeDot color="#00FF9D" />
@@ -959,6 +1141,47 @@ const Home = () => {
         </FeatureGrid>
       </FeaturesSection></div>
 
+      <div id="showcase"><ShowcaseSection>
+        <SectionHeader>
+          <SectionLabel>Community</SectionLabel>
+          <SectionTitle>Real People, Real Results</SectionTitle>
+          <SectionSubtitle>
+            Join a growing community of athletes and fitness enthusiasts who
+            trust PeakPulse to elevate their training.
+          </SectionSubtitle>
+        </SectionHeader>
+        <ShowcaseGrid>
+          <ShowcaseLarge>
+            <img
+              src="/portrait-youg-afro-american-sports-man-doing-pushup-exercise.jpg"
+              alt="Athlete doing pushups"
+            />
+            <ShowcaseOverlay>
+              <ShowcaseTag>Strength Training</ShowcaseTag>
+              <ShowcaseTitle>Track every rep, set, and pound</ShowcaseTitle>
+            </ShowcaseOverlay>
+          </ShowcaseLarge>
+          <ShowcaseRight>
+            <ShowcaseSmall>
+              <img src="/download.jpg" alt="Workout tracking" />
+              <ShowcaseOverlay>
+                <ShowcaseTag>Analytics</ShowcaseTag>
+                <ShowcaseTitle>Visualize your progress</ShowcaseTitle>
+              </ShowcaseOverlay>
+            </ShowcaseSmall>
+            <ShowcaseCard>
+              <ShowcaseCardIcon><FaCheckCircle /></ShowcaseCardIcon>
+              <ShowcaseCardTitle>Built by athletes, for athletes</ShowcaseCardTitle>
+              <ShowcaseCardText>
+                From precision logging to advanced analytics — every feature is
+                designed to help you push past plateaus and reach new personal
+                bests.
+              </ShowcaseCardText>
+            </ShowcaseCard>
+          </ShowcaseRight>
+        </ShowcaseGrid>
+      </ShowcaseSection></div>
+
       <div id="blog"><TestimonialSection>
         <SectionHeader style={{ marginBottom: 40 }}>
           <SectionLabel>Testimonials</SectionLabel>
@@ -1000,9 +1223,9 @@ const Home = () => {
           </FooterLogo>
           <FooterLinks>
             <button onClick={() => scrollTo("features")}>Features</button>
+            <button onClick={() => scrollTo("showcase")}>Gallery</button>
             <button onClick={() => scrollTo("pricing")}>Pricing</button>
-            <button onClick={() => scrollTo("hero")}>About</button>
-            <button onClick={() => scrollTo("blog")}>Blog</button>
+            <button onClick={() => scrollTo("blog")}>Testimonials</button>
             <button onClick={() => scrollTo("contact")}>Contact</button>
           </FooterLinks>
           <SocialIcons>
