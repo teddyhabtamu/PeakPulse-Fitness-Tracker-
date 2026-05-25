@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://peakpulse.tewodroshabtamu.dev.com/</loc>
+    <loc>https://peakpulse.tewodroshabtamu.dev/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://peakpulse.tewodroshabtamu.dev.com/signin</loc>
+    <loc>https://peakpulse.tewodroshabtamu.dev/signin</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://peakpulse.tewodroshabtamu.dev.com/signup</loc>
+    <loc>https://peakpulse.tewodroshabtamu.dev/signup</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://peakpulse.tewodroshabtamu.dev.com/terms-of-service</loc>
+    <loc>https://peakpulse.tewodroshabtamu.dev/terms-of-service</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://peakpulse.tewodroshabtamu.dev.com/privacy-policy</loc>
+    <loc>https://peakpulse.tewodroshabtamu.dev/privacy-policy</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>

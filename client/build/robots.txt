@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://peakpulse.tewodroshabtamu.dev.com/sitemap.xml
+Sitemap: https://peakpulse.tewodroshabtamu.dev/sitemap.xml
