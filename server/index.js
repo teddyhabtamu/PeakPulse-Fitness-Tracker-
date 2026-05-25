@@ -11,6 +11,7 @@ const nodemailer = require("nodemailer");
 const { OAuth2Client } = require("google-auth-library");
 const multer = require("multer");
 const path = require("path");
+const supabase = require("./supabase");
 const resetPasswordEmail = require("./templates/resetPasswordEmail");
 const welcomeEmail = require("./templates/welcomeEmail");
 
@@ -21,18 +22,7 @@ const app = express();
 const port = 5000;
 const BASE_URL = process.env.BASE_URL;
 
-const uploadDir = path.join(__dirname, "uploads");
-if (!require("fs").existsSync(uploadDir)) {
-  require("fs").mkdirSync(uploadDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) => {
-    const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, unique + path.extname(file.originalname));
-  },
-});
+const storage = multer.memoryStorage();
 const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 },
@@ -74,7 +64,7 @@ const corsOptions = {
 // Middleware
 app.use(bodyParser.json());
 app.use(cors(corsOptions));
-app.use("/uploads", express.static(uploadDir));
+// removed: app.use("/uploads", express.static(uploadDir));
 
 // Route for signup
 app.post("/api/auth/signup", async (req, res) => {
@@ -586,11 +576,38 @@ app.get("/api/workouts/:date", authenticateToken, async (req, res) => {
   }
 });
 
-// Image upload endpoint
-app.post("/api/upload", authenticateToken, upload.single("image"), (req, res) => {
+// Image upload endpoint - stores in Supabase Storage
+const BUCKET_NAME = process.env.SUPABASE_BUCKET || "blog-images";
+
+app.post("/api/upload", authenticateToken, upload.single("image"), async (req, res) => {
   if (!req.file) return res.status(400).json({ message: "No file uploaded" });
-  const url = `${BASE_URL || `http://localhost:${port}`}/uploads/${req.file.filename}`;
-  res.status(200).json({ url, filename: req.file.filename });
+
+  const ext = path.extname(req.file.originalname);
+  const fileName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+  const filePath = `blog/${fileName}`;
+
+  try {
+    const { data, error } = await supabase.storage
+      .from(BUCKET_NAME)
+      .upload(filePath, req.file.buffer, {
+        contentType: req.file.mimetype,
+        upsert: false,
+      });
+
+    if (error) {
+      console.error("Supabase upload error:", error);
+      return res.status(500).json({ message: "Failed to upload image" });
+    }
+
+    const { data: urlData } = supabase.storage
+      .from(BUCKET_NAME)
+      .getPublicUrl(filePath);
+
+    res.status(200).json({ url: urlData.publicUrl, filename: fileName });
+  } catch (error) {
+    console.error("Upload error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 });
 
 app.post("/api/blog", authenticateToken, async (req, res) => {
