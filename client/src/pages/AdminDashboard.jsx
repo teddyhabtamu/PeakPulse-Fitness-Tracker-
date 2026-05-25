@@ -339,7 +339,15 @@ const AdminDashboard = () => {
   };
 
   useEffect(() => {
-    fetchAll();
+    const init = async () => {
+      setLoading(true);
+      const [u, b] = await Promise.all([api.get("/admin/users"), api.get("/admin/blog")]);
+      setUsers(u.data);
+      setBlogs(b.data);
+      setStats({ users: u.data.length, admins: u.data.filter((x) => x.is_admin).length, blogs: b.data.length });
+      setLoading(false);
+    };
+    init();
   }, []);
 
   const toggleAdmin = async (userId, current) => {
