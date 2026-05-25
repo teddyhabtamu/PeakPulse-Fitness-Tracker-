@@ -26,6 +26,8 @@ const pulse = keyframes`
 // ── Layout ──
 const Container = styled.div`
   flex: 1;
+  width: 100%;
+  min-width: 0;
   height: 100%;
   display: flex;
   justify-content: center;
@@ -39,6 +41,8 @@ const Container = styled.div`
 
 const Wrapper = styled.div`
   flex: 1;
+  width: 100%;
+  min-width: 0;
   max-width: 1400px;
   display: flex;
   flex-direction: column;
@@ -125,6 +129,11 @@ const GoalCard = styled.div`
   display: flex;
   align-items: center;
   gap: 16px;
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 `;
 
 const GoalIcon = styled.div`
@@ -149,6 +158,12 @@ const GoalHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
+
+  @media (max-width: 600px) {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
 `;
 
 const GoalTitle = styled.div`
@@ -180,6 +195,10 @@ const SectionHeader = styled.div`
   align-items: center;
   gap: 12px;
   animation: ${fadeInUp} 0.8s ease;
+
+  @media (max-width: 600px) {
+    flex-wrap: wrap;
+  }
 `;
 
 const SectionTitle = styled.h2`
@@ -200,10 +219,14 @@ const Badge = styled.span`
 
 const WorkoutsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 20px;
   margin-bottom: 80px;
   animation: ${fadeInUp} 0.9s ease;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 // ── Empty State ──

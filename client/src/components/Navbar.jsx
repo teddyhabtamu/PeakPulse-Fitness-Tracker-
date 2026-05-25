@@ -87,6 +87,8 @@ const Sidebar = styled.div`
 
   @media (max-width: 768px) {
     width: 260px;
+    top: 56px;
+    height: calc(100dvh - 56px);
     transform: ${({ open }) => open ? "translateX(0)" : "translateX(-100%)"};
     box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
   }
@@ -99,6 +101,12 @@ const SidebarInner = styled.div`
   height: 100%;
   padding: ${({ collapsed }) => collapsed ? "20px 0" : "20px"};
   overflow-y: auto;
+  min-height: 0;
+  overscroll-behavior: contain;
+
+  @media (max-width: 768px) {
+    padding: 20px 20px 24px;
+  }
 `;
 
 const SidebarHeader = styled.div`
