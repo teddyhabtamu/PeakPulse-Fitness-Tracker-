@@ -429,6 +429,13 @@ const Workouts = () => {
   const [progressData, setProgressData] = useState([]);
   const [progressLoading, setProgressLoading] = useState(false);
   const [alertMsg, setAlertMsg] = useState("");
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 600);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const showProgress = async (exerciseName) => {
     setProgressExercise(exerciseName);
@@ -681,6 +688,7 @@ const Workouts = () => {
                   </ModalStats>
                   <ChartWrapper>
                     <LineChart
+                      disableAxisListener={isMobile}
                       xAxis={[{ data: progressData.map(d => new Date(d.date)), scaleType: "time", tickLabelStyle: { fontSize: 10 } }]}
                       series={[
                         { data: progressData.map(d => d.weight), label: "Weight (kg)", color: "#00FF9D" },

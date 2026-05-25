@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { BarChart } from "@mui/x-charts/BarChart";
 
@@ -49,6 +49,14 @@ const Title = styled.div`
 `;
 
 const WeeklyStatCard = ({ data }) => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 600);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const hasWeeklyData = data?.weeklyStats?.length > 0;
 
   return (
@@ -56,6 +64,7 @@ const WeeklyStatCard = ({ data }) => {
       <Title>Weekly Activity</Title>
       {hasWeeklyData ? (
         <BarChart
+          disableAxisListener={isMobile}
           xAxis={[
             {
               scaleType: "band",

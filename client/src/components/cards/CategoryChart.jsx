@@ -94,6 +94,7 @@ const CategoryChart = ({ data }) => {
       <Title>Workout Categories</Title>
       {hasPieChartData ? (
         <PieChart
+          disableAxisListener={isMobile}
           series={[
             {
               data: pieChartData,
