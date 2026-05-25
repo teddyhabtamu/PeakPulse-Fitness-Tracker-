@@ -20,6 +20,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import AdminDashboard from "./pages/AdminDashboard";
 import Home from "./pages/Home";
 import ProfileSettings from "./pages/ProfileSettings";
+import InstallPopup from "./components/InstallPopup";
 
 const Container = styled.div`
   width: 100%;
@@ -144,6 +145,7 @@ function App() {
             </Routes>
           )}
         </Container>
+        <InstallPopup />
       </Router>
     </ThemeProvider>
     </GoogleOAuthProvider>

@@ -1,12 +1,8 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "PeakPulse",
+  "name": "PeakPulse Fitness Tracker",
+  "description": "Track your workouts, monitor progress, and achieve your fitness goals with PeakPulse",
   "icons": [
-    {
-      "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
-    },
     {
       "src": "logo192.png",
       "type": "image/png",
@@ -15,11 +11,14 @@
     {
       "src": "logo512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#0D3B2E",
+  "background_color": "#ffffff",
+  "orientation": "portrait-primary",
+  "categories": ["fitness", "health", "lifestyle"]
 }
