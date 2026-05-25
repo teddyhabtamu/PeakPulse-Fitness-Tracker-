@@ -15,6 +15,8 @@ import Workouts from "./pages/Workouts";
 import Tutorials from "./pages/Tutorials";
 import Blogs from "./pages/Blogs";
 import Contact from "./pages/Contact";
+import TermsOfService from "./pages/TermsOfService";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Home from "./pages/Home";
 import ProfileSettings from "./pages/ProfileSettings";
 
@@ -131,6 +133,8 @@ function App() {
               <Route path="/signup" element={<Authentication onLogin={handleLogin} formType="signup" />} />
               <Route path="/forgot-password" element={<Authentication formType="forgot-password" />} />
               <Route path="/reset-password/:token" element={<Authentication formType="reset-password" />} />
+              <Route path="/terms-of-service" element={<TermsOfService />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           )}
