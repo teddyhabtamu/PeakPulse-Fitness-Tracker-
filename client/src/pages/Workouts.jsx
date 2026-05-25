@@ -366,6 +366,19 @@ const StatBoxLabel = styled.div`
 const ChartWrapper = styled.div`
   width: 100%;
   overflow-x: auto;
+  touch-action: pan-y;
+
+  .MuiChartsAxis-tickLabel,
+  .MuiChartsAxis-label,
+  .MuiChartsLegend-root text,
+  .MuiChartsLegend-root tspan {
+    fill: ${({ theme }) => theme.text_secondary} !important;
+  }
+
+  .MuiChartsAxis-line,
+  .MuiChartsAxis-tick {
+    stroke: ${({ theme }) => theme.text_secondary}40 !important;
+  }
 `;
 
 // --- Loading / Empty ---
@@ -670,12 +683,11 @@ const Workouts = () => {
                     <LineChart
                       xAxis={[{ data: progressData.map(d => new Date(d.date)), scaleType: "time", tickLabelStyle: { fontSize: 10 } }]}
                       series={[
-                        { data: progressData.map(d => d.weight), label: "Weight (kg)", color: "#174657" },
+                        { data: progressData.map(d => d.weight), label: "Weight (kg)", color: "#00FF9D" },
                         { data: progressData.map(d => d.estimated_1rm), label: "Est. 1RM", color: "#FF6B00" },
                       ]}
                       height={300}
                       margin={{ left: 50, right: 20, top: 20, bottom: 30 }}
-                      sx={{ "& .MuiChartsAxis-tickLabel": { fill: "#AFAFB5 !important", fontSize: 10 } }}
                     />
                   </ChartWrapper>
                 </>

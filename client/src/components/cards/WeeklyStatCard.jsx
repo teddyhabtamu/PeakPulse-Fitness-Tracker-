@@ -14,11 +14,24 @@ const Card = styled.div`
   flex-direction: column;
   gap: 6px;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  touch-action: pan-y;
 
   &:hover {
     transform: translateY(-5px);
     box-shadow: 0px 15px 30px rgba(182, 36, 255, 0.15);
     border-color: ${({ theme }) => theme.secondary + 50};
+  }
+
+  .MuiChartsAxis-tickLabel,
+  .MuiChartsAxis-label,
+  .MuiChartsLegend-root text,
+  .MuiChartsLegend-root tspan {
+    fill: ${({ theme }) => theme.text_secondary} !important;
+  }
+
+  .MuiChartsAxis-line,
+  .MuiChartsAxis-tick {
+    stroke: ${({ theme }) => theme.text_secondary}40 !important;
   }
 
   @media (max-width: 600px) {
@@ -43,11 +56,6 @@ const WeeklyStatCard = ({ data }) => {
       <Title>Weekly Activity</Title>
       {hasWeeklyData ? (
         <BarChart
-          sx={{
-            "& .MuiChartsAxis-tickLabel": { fill: "#AFAFB5 !important" },
-            "& .MuiChartsAxis-line": { stroke: "#AFAFB5 !important" },
-            "& .MuiChartsAxis-tick": { stroke: "#AFAFB5 !important" },
-          }}
           xAxis={[
             {
               scaleType: "band",

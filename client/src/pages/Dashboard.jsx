@@ -4,7 +4,7 @@ import api from "../utils/api";
 import CountsCard from "../components/cards/CountsCard";
 import WeeklyStatCard from "../components/cards/WeeklyStatCard";
 import CategoryChart from "../components/cards/CategoryChart";
-import { LinearProgress } from "@mui/material";
+import { LinearProgress as MuiLinearProgress } from "@mui/material";
 import WorkoutCard from "../components/cards/WorkoutCard";
 import AddWorkout from "../components/AddWorkout";
 import PersonalRecordCard from "../components/cards/PersonalRecordCard";
@@ -176,6 +176,15 @@ const GoalValue = styled.span`
   font-weight: 700;
   font-size: 15px;
   color: ${({ theme }) => theme.primary};
+`;
+
+const LinearProgress = styled(MuiLinearProgress)`
+  height: 8px;
+  border-radius: 4px;
+  background-color: ${({ theme }) => theme.border} !important;
+  .MuiLinearProgress-bar {
+    background-color: ${({ theme }) => theme.primary} !important;
+  }
 `;
 
 // ── Charts Grid ──
@@ -405,16 +414,7 @@ const Dashboard = () => {
                 <GoalTitle>Daily Active Goal</GoalTitle>
                 <GoalValue>{todaysDuration} / {durationGoal} min</GoalValue>
               </GoalHeader>
-              <LinearProgress
-                variant="determinate"
-                value={progressPercent}
-                sx={{
-                  height: 8,
-                  borderRadius: 4,
-                  backgroundColor: '#e0e0e0',
-                  '& .MuiLinearProgress-bar': { backgroundColor: '#174657' }
-                }}
-              />
+              <LinearProgress variant="determinate" value={progressPercent} />
             </GoalContent>
           </GoalCard>
         </TwoColGrid>

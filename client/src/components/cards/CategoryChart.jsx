@@ -15,6 +15,7 @@ const Card = styled.div`
   align-items: center;
   gap: 6px;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  touch-action: pan-y;
 
   &:hover {
     transform: translateY(-5px);
@@ -23,8 +24,14 @@ const Card = styled.div`
   }
 
   .MuiChartsLegend-root text,
-  .MuiChartsLegend-root tspan {
-    fill: ${({ theme }) => theme.text_primary} !important;
+  .MuiChartsLegend-root tspan,
+  .MuiChartsAxis-tickLabel {
+    fill: ${({ theme }) => theme.text_secondary} !important;
+  }
+
+  .MuiChartsAxis-line,
+  .MuiChartsAxis-tick {
+    stroke: ${({ theme }) => theme.text_secondary}40 !important;
   }
 
   @media (max-width: 600px) {
