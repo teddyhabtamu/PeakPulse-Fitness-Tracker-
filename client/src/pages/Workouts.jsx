@@ -687,16 +687,17 @@ const Workouts = () => {
                     </StatBox>
                   </ModalStats>
                   <ChartWrapper>
-                    <LineChart
-                      disableAxisListener={isMobile}
-                      xAxis={[{ data: progressData.map(d => new Date(d.date)), scaleType: "time", tickLabelStyle: { fontSize: 10 } }]}
-                      series={[
-                        { data: progressData.map(d => d.weight), label: "Weight (kg)", color: "#00FF9D" },
-                        { data: progressData.map(d => d.estimated_1rm), label: "Est. 1RM", color: "#FF6B00" },
-                      ]}
-                      height={300}
-                      margin={{ left: 50, right: 20, top: 20, bottom: 30 }}
-                    />
+                    <div style={isMobile ? { pointerEvents: "none" } : undefined}>
+                      <LineChart
+                        xAxis={[{ data: progressData.map(d => new Date(d.date)), scaleType: "time", tickLabelStyle: { fontSize: 10 } }]}
+                        series={[
+                          { data: progressData.map(d => d.weight), label: "Weight (kg)", color: "#00FF9D" },
+                          { data: progressData.map(d => d.estimated_1rm), label: "Est. 1RM", color: "#FF6B00" },
+                        ]}
+                        height={300}
+                        margin={{ left: 50, right: 20, top: 20, bottom: 30 }}
+                      />
+                    </div>
                   </ChartWrapper>
                 </>
               ) : (

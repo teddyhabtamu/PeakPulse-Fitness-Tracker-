@@ -93,21 +93,22 @@ const CategoryChart = ({ data }) => {
     <Card>
       <Title>Workout Categories</Title>
       {hasPieChartData ? (
-        <PieChart
-          disableAxisListener={isMobile}
-          series={[
-            {
-              data: pieChartData,
-              innerRadius: 20,
-              outerRadius,
-              paddingAngle: 5,
-              cornerRadius: 5,
-            },
-          ]}
-          height={chartHeight}
-          margin={chartMargin}
-          slotProps={{ legend: legendProps }}
-        />
+        <div style={isMobile ? { pointerEvents: "none" } : undefined}>
+          <PieChart
+            series={[
+              {
+                data: pieChartData,
+                innerRadius: 20,
+                outerRadius,
+                paddingAngle: 5,
+                cornerRadius: 5,
+              },
+            ]}
+            height={chartHeight}
+            margin={chartMargin}
+            slotProps={{ legend: legendProps }}
+          />
+        </div>
       ) : (
         <div style={{ color: "#AFAFB5", fontSize: 14, padding: "40px 0", textAlign: "center" }}>
           Add workouts to see category breakdown

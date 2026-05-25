@@ -63,19 +63,20 @@ const WeeklyStatCard = ({ data }) => {
     <Card>
       <Title>Weekly Activity</Title>
       {hasWeeklyData ? (
-        <BarChart
-          disableAxisListener={isMobile}
-          xAxis={[
-            {
-              scaleType: "band",
-              data: data.weeklyStats.map((_, i) => `W${i + 1}`),
-            },
-          ]}
-          series={[
-            { data: data.weeklyStats.map((stat) => Number(stat.total_duration) || 0), label: "Minutes" },
-          ]}
-          height={300}
-        />
+        <div style={isMobile ? { pointerEvents: "none" } : undefined}>
+          <BarChart
+            xAxis={[
+              {
+                scaleType: "band",
+                data: data.weeklyStats.map((_, i) => `W${i + 1}`),
+              },
+            ]}
+            series={[
+              { data: data.weeklyStats.map((stat) => Number(stat.total_duration) || 0), label: "Minutes" },
+            ]}
+            height={300}
+          />
+        </div>
       ) : (
         <div style={{ color: "#AFAFB5", fontSize: 14, padding: "40px 0", textAlign: "center" }}>
           No weekly data yet
