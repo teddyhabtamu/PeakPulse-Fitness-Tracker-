@@ -136,7 +136,7 @@ app.post("/api/auth/signin", async (req, res) => {
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
-    const token = jwt.sign({ id: user.user_id, email: user.email }, secretKey, {
+    const token = jwt.sign({ id: user.user_id, email: user.email, is_admin: user.is_admin }, secretKey, {
       expiresIn: "1h",
     });
 
@@ -144,7 +144,8 @@ app.post("/api/auth/signin", async (req, res) => {
       message: "Sign in successful", 
       token,
       name: user.name,
-      email: user.email
+      email: user.email,
+      is_admin: user.is_admin
     });
   } catch (error) {
     console.error("Signin error:", error);
@@ -302,7 +303,10 @@ app.post("/api/auth/google", async (req, res) => {
       }
     }
 
-    const token = jwt.sign({ id: userId, email }, secretKey, {
+    const userRow = existingUser.length > 0 ? existingUser[0] : result[0][0] || result[0];
+    const isAdmin = userRow?.is_admin || false;
+
+    const token = jwt.sign({ id: userId, email, is_admin: isAdmin }, secretKey, {
       expiresIn: "1h",
     });
 
@@ -311,6 +315,7 @@ app.post("/api/auth/google", async (req, res) => {
       token,
       name,
       email,
+      is_admin: isAdmin,
     });
   } catch (error) {
     console.error("Google auth error:", error);
@@ -325,6 +330,7 @@ const authenticateToken = (req, res, next) => {
     try {
       const decoded = jwt.verify(token, secretKey);
       req.userId = decoded.id;
+      req.isAdmin = decoded.is_admin === true;
       next();
     } catch (err) {
       res.status(401).json({ message: "Unauthorized" });
@@ -332,6 +338,13 @@ const authenticateToken = (req, res, next) => {
   } else {
     res.status(401).json({ message: "Authorization header missing" });
   }
+};
+
+const requireAdmin = (req, res, next) => {
+  if (!req.isAdmin) {
+    return res.status(403).json({ message: "Admin access required" });
+  }
+  next();
 };
 
 app.use("/api/dashboard", authenticateToken);
@@ -576,6 +589,65 @@ app.get("/api/workouts/:date", authenticateToken, async (req, res) => {
   }
 });
 
+// Admin endpoints
+app.get("/api/admin/users", authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const [rows] = await db.execute(
+      "SELECT user_id, name, email, is_admin, created_at FROM users ORDER BY created_at DESC"
+    );
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error("Admin users fetch error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.put("/api/admin/users/:id/role", authenticateToken, requireAdmin, async (req, res) => {
+  const { id } = req.params;
+  const { is_admin } = req.body;
+  try {
+    await db.execute("UPDATE users SET is_admin = $1 WHERE user_id = $2", [is_admin, id]);
+    res.status(200).json({ message: "User role updated" });
+  } catch (error) {
+    console.error("Admin role update error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.delete("/api/admin/users/:id", authenticateToken, requireAdmin, async (req, res) => {
+  const { id } = req.params;
+  try {
+    await db.execute("DELETE FROM users WHERE user_id = $1", [id]);
+    res.status(200).json({ message: "User deleted" });
+  } catch (error) {
+    console.error("Admin delete user error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.get("/api/admin/blog", authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const [rows] = await db.execute(
+      "SELECT Blog.*, users.name AS author_name FROM Blog JOIN users ON Blog.author_id = users.user_id ORDER BY created_at DESC"
+    );
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error("Admin blog fetch error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.delete("/api/admin/blog/:id", authenticateToken, requireAdmin, async (req, res) => {
+  const { id } = req.params;
+  try {
+    await db.execute("DELETE FROM Blog WHERE blog_id = $1", [id]);
+    res.status(200).json({ message: "Blog post deleted" });
+  } catch (error) {
+    console.error("Admin delete blog error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 // Image upload endpoint - stores in Supabase Storage
 const BUCKET_NAME = process.env.SUPABASE_BUCKET || "blog-images";
 
@@ -646,7 +718,7 @@ app.get("/api/user/profile", authenticateToken, async (req, res) => {
   const userId = req.userId;
   try {
     const [rows] = await db.execute(
-      "SELECT name, email FROM users WHERE user_id = $1",
+      "SELECT name, email, is_admin FROM users WHERE user_id = $1",
       [userId]
     );
     if (rows.length === 0) {

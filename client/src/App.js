@@ -17,6 +17,7 @@ import Blogs from "./pages/Blogs";
 import Contact from "./pages/Contact";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import AdminDashboard from "./pages/AdminDashboard";
 import Home from "./pages/Home";
 import ProfileSettings from "./pages/ProfileSettings";
 
@@ -65,12 +66,14 @@ function App() {
       const token = localStorage.getItem("token");
       const name = localStorage.getItem("user_name");
       const email = localStorage.getItem("user_email");
+      const isAdmin = localStorage.getItem("user_is_admin") === "true";
       if (token && !isTokenExpired(token)) {
-        setUser({ token, name: name || "User", email: email || "" });
+        setUser({ token, name: name || "User", email: email || "", is_admin: isAdmin });
       } else if (token) {
         localStorage.removeItem("token");
         localStorage.removeItem("user_name");
         localStorage.removeItem("user_email");
+        localStorage.removeItem("user_is_admin");
       }
     };
 
@@ -96,6 +99,7 @@ function App() {
     localStorage.removeItem("token");
     localStorage.removeItem("user_name");
     localStorage.removeItem("user_email");
+    localStorage.removeItem("user_is_admin");
     setUser(null);
   };
 
@@ -122,6 +126,7 @@ function App() {
                   <Route path="/blogs" element={<Blogs />} />
                   <Route path="/contact" element={<Contact />} />
                   <Route path="/profile" element={<ProfileSettings />} />
+                  {user?.is_admin && <Route path="/admin" element={<AdminDashboard />} />}
                   <Route path="*" element={<Navigate to="/" />} />
                 </Routes>
               </PageContent>

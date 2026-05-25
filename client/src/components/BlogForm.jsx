@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import styled, { keyframes } from "styled-components";
 import api from "../utils/api";
 import Button from "./Button";
+import ConfirmModal from "./ConfirmModal";
 import { FiImage, FiX } from "react-icons/fi";
 
 const fadeIn = keyframes`
@@ -210,6 +211,7 @@ const BlogForm = ({ closeForm, fetchBlogPosts }) => {
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "" });
+  const [promptOpen, setPromptOpen] = useState(false);
   const fileInputRef = useRef(null);
 
   const handleImageUpload = async (e) => {
@@ -241,8 +243,7 @@ const BlogForm = ({ closeForm, fetchBlogPosts }) => {
   };
 
   const insertImageMark = () => {
-    const url = prompt("Paste image URL to embed in content:");
-    if (url) setContent((prev) => prev + `\n![](${url})\n`);
+    setPromptOpen(true);
   };
 
   const handleSubmit = async (e) => {
@@ -364,6 +365,19 @@ const BlogForm = ({ closeForm, fetchBlogPosts }) => {
           />
         </ButtonGroup>
       </FormContainer>
+
+      <ConfirmModal
+        open={promptOpen}
+        variant="prompt"
+        title="Embed Image"
+        message="Paste an image URL to embed it in your story content."
+        confirmLabel="Embed"
+        onConfirm={(url) => {
+          setPromptOpen(false);
+          if (url) setContent((prev) => prev + `\n![](${url})\n`);
+        }}
+        onCancel={() => setPromptOpen(false)}
+      />
     </Overlay>
   );
 };

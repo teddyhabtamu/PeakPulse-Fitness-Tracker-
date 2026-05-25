@@ -17,6 +17,7 @@ async function initSchema() {
         google_id VARCHAR(255) UNIQUE,
         reset_token VARCHAR(255),
         reset_token_expiry TIMESTAMP,
+        is_admin BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT NOW()
       );
     `);

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import styled, { keyframes } from "styled-components";
 import LogoImg from "../utils/Images/Logo.png";
 import { Link as LinkR, NavLink, useNavigate } from "react-router-dom";
-import { FiMenu, FiX, FiSun, FiMoon, FiUser, FiLogOut, FiChevronDown, FiChevronsLeft, FiGrid, FiZap, FiBookOpen, FiFileText, FiMail } from "react-icons/fi";
+import { FiMenu, FiX, FiSun, FiMoon, FiUser, FiLogOut, FiChevronDown, FiChevronsLeft, FiGrid, FiZap, FiBookOpen, FiFileText, FiMail, FiShield } from "react-icons/fi";
 
 const fadeInUp = keyframes`
   from { opacity: 0; transform: translateY(8px); }
@@ -438,6 +438,7 @@ const Navbar = ({ currentUser, onLogout, themeMode, toggleTheme, collapsed, onTo
     { to: "/tutorials", label: "Tutorials", icon: <FiBookOpen size={18} /> },
     { to: "/blogs", label: "Blog", icon: <FiFileText size={18} /> },
     { to: "/contact", label: "Contact", icon: <FiMail size={18} /> },
+    ...(currentUser?.is_admin ? [{ to: "/admin", label: "Admin", icon: <FiShield size={18} /> }] : []),
   ];
 
   const closeAll = () => {

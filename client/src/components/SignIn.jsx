@@ -173,11 +173,12 @@ const SignIn = ({ onLogin }) => {
     setError("");
     try {
       const response = await googleAuth(credentialResponse.credential);
-      const { token, name, email: userEmail } = response.data;
+      const { token, name, email: userEmail, is_admin } = response.data;
       localStorage.setItem("token", token);
       localStorage.setItem("user_name", name || "");
       localStorage.setItem("user_email", userEmail || "");
-      onLogin({ token, name, email: userEmail });
+      localStorage.setItem("user_is_admin", is_admin ? "true" : "false");
+      onLogin({ token, name, email: userEmail, is_admin: !!is_admin });
       navigate("/");
     } catch (err) {
       setError(
@@ -202,12 +203,13 @@ const SignIn = ({ onLogin }) => {
 
     try {
       const response = await login(email, password);
-      const { token, name, email: userEmail } = response.data;
+      const { token, name, email: userEmail, is_admin } = response.data;
       
       localStorage.setItem("token", token);
       localStorage.setItem("user_name", name || "");
       localStorage.setItem("user_email", userEmail || "");
-      onLogin({ token, name, email: userEmail });
+      localStorage.setItem("user_is_admin", is_admin ? "true" : "false");
+      onLogin({ token, name, email: userEmail, is_admin: !!is_admin });
       navigate("/");
     } catch (err) {
       console.error(err);

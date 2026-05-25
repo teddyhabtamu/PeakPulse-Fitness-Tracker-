@@ -24,6 +24,12 @@ async function migrate() {
     `);
     console.log("Added cover_image column to Blog table");
 
+    await pool.query(`
+      ALTER TABLE users
+      ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE;
+    `);
+    console.log("Added is_admin column to users table");
+
     console.log("Migration complete!");
   } catch (error) {
     console.error("Migration error:", error);

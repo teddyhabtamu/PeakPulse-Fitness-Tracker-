@@ -3,6 +3,7 @@ import styled, { keyframes } from "styled-components";
 import api from "../utils/api";
 import WorkoutCard from "../components/cards/WorkoutCard";
 import Button from "../components/Button";
+import ConfirmModal from "../components/ConfirmModal";
 import dayjs from "dayjs";
 import { FiChevronLeft, FiChevronRight, FiActivity, FiClock, FiTarget, FiDownload, FiTrendingUp } from "react-icons/fi";
 import { LineChart } from "@mui/x-charts/LineChart";
@@ -404,6 +405,7 @@ const Workouts = () => {
   const [progressExercise, setProgressExercise] = useState(null);
   const [progressData, setProgressData] = useState([]);
   const [progressLoading, setProgressLoading] = useState(false);
+  const [alertMsg, setAlertMsg] = useState("");
 
   const showProgress = async (exerciseName) => {
     setProgressExercise(exerciseName);
@@ -460,7 +462,7 @@ const Workouts = () => {
   // Export Logic
   const exportToCSV = () => {
     if (!workouts.length) {
-      alert("No workouts to export for this date.");
+      setAlertMsg("No workouts to export for this date.");
       return;
     }
     const headers = ["Category", "Workout Name", "Sets", "Reps", "Weight (kg)", "Duration (min)"];
@@ -534,7 +536,7 @@ const Workouts = () => {
               text="Export CSV" 
               leftIcon={<FiDownload size={16}/>} 
               onClick={exportToCSV} 
-              type="secondary"
+              outlined
             />
           </HeaderTop>
 
@@ -678,6 +680,16 @@ const Workouts = () => {
           </ModalOverlay>
         )}
       </Wrapper>
+
+      <ConfirmModal
+        open={!!alertMsg}
+        variant="alert"
+        title="Notice"
+        message={alertMsg}
+        confirmLabel="OK"
+        onConfirm={() => setAlertMsg("")}
+        onCancel={() => setAlertMsg("")}
+      />
     </Container>
   );
 };
