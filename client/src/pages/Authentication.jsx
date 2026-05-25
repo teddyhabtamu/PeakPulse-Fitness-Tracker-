@@ -1,6 +1,5 @@
 import React from "react";
 import styled, { keyframes } from "styled-components";
-import HeroImage from "../utils/Images/hero3.png";
 import SignIn from "../components/SignIn";
 import SignUp from "../components/SignUp";
 import ForgotPassword from "../components/ForgotPassword";
@@ -178,7 +177,7 @@ const Authentication = ({ onLogin, formType }) => {
   return (
     <Container>
       <LeftPanel>
-        <LeftBgImage src={HeroImage} alt="PeakPulse Dashboard" />
+        <LeftBgImage src="/athletic-shirtless-young-male-fitness-model-holds-dumbbell-with-light-isolated-dark-background.jpg" alt="Fitness training" />
         <LeftOverlay />
         <LeftContent>
           <TopBar>

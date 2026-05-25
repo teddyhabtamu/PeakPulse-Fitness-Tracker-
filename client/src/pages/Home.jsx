@@ -12,7 +12,6 @@ import {
   FaArrowRight,
   FaStar,
   FaQuoteLeft,
-  FaPlay,
   FaCheckCircle,
 } from "react-icons/fa";
 
