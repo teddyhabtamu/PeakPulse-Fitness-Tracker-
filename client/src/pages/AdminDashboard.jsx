@@ -38,6 +38,7 @@ const Wrapper = styled.div`
   flex-direction: column;
   gap: 28px;
   animation: ${fadeInUp} 0.4s ease;
+  min-width: 0;
 `;
 
 const Header = styled.div`
@@ -76,9 +77,23 @@ const HeaderSub = styled.p`
 
 const TabBar = styled.div`
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   border-bottom: 1px solid ${({ theme }) => theme.border};
   padding-bottom: 0;
+  align-items: center;
+
+  @media (max-width: 600px) {
+    gap: 4px;
+  }
+`;
+
+const Spacer = styled.div`
+  flex: 1;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 const Tab = styled.button`
@@ -153,6 +168,11 @@ const TableCard = styled.div`
   border: 1px solid ${({ theme }) => theme.border};
   border-radius: 16px;
   overflow: hidden;
+  min-width: 0;
+
+  @media (max-width: 768px) {
+    border-radius: 12px;
+  }
 `;
 
 const TableHeader = styled.div`
@@ -161,6 +181,10 @@ const TableHeader = styled.div`
   justify-content: space-between;
   padding: 18px 24px;
   border-bottom: 1px solid ${({ theme }) => theme.border};
+
+  @media (max-width: 768px) {
+    padding: 12px 16px;
+  }
 `;
 
 const TableTitle = styled.h3`
@@ -172,11 +196,25 @@ const TableTitle = styled.h3`
 
 const TableWrapper = styled.div`
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  max-width: 100%;
+
+  @media (max-width: 768px) {
+    &::-webkit-scrollbar { height: 4px; }
+    &::-webkit-scrollbar-thumb { background: ${({ theme }) => theme.text_secondary}40; border-radius: 4px; }
+    &::-webkit-scrollbar-track { background: transparent; }
+  }
 `;
 
 const StyledTable = styled.table`
-  width: 100%;
   border-collapse: collapse;
+  width: 100%;
+
+  @media (max-width: 768px) {
+    width: auto;
+    min-width: 480px;
+  }
 `;
 
 const Th = styled.th`
@@ -190,6 +228,11 @@ const Th = styled.th`
   background: ${({ theme }) => theme.input_bg};
   border-bottom: 1px solid ${({ theme }) => theme.border};
   white-space: nowrap;
+
+  @media (max-width: 768px) {
+    padding: 8px 10px;
+    font-size: 11px;
+  }
 `;
 
 const Td = styled.td`
@@ -198,6 +241,23 @@ const Td = styled.td`
   color: ${({ theme }) => theme.text_primary};
   border-bottom: 1px solid ${({ theme }) => theme.border};
   white-space: nowrap;
+
+  @media (max-width: 768px) {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+`;
+
+const HideMobile = styled(Th)`
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
+
+const HideMobileCell = styled(Td)`
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 const Badge = styled.span`
@@ -242,9 +302,10 @@ const SearchWrapper = styled.div`
   margin-left: auto;
   width: 260px;
 
-  @media (max-width: 600px) {
+  @media (max-width: 768px) {
     width: 100%;
-    margin: 0;
+    margin: 8px 0 0;
+    order: 10;
   }
 `;
 
@@ -286,6 +347,16 @@ const EmptyState = styled.div`
   padding: 48px 24px;
   color: ${({ theme }) => theme.text_secondary};
   font-size: 14px;
+`;
+
+const ActionGroup = styled.div`
+  display: flex;
+  gap: 6px;
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    gap: 4px;
+  }
 `;
 
 const LoadingRow = styled.div`
@@ -444,7 +515,7 @@ const AdminDashboard = () => {
           <Tab $active={tab === "blogs"} onClick={() => setTab("blogs")}>
             <FiFileText size={16} /> Blog Posts
           </Tab>
-          <div style={{ flex: 1 }} />
+          <Spacer />
           <SearchWrapper>
             <SearchIcon><FiSearch size={14} /></SearchIcon>
             <SearchInput
@@ -472,28 +543,28 @@ const AdminDashboard = () => {
                 <StyledTable>
                   <thead>
                     <tr>
-                      <Th>ID</Th>
-                      <Th>Name</Th>
-                      <Th>Email</Th>
-                      <Th>Joined</Th>
-                      <Th>Role</Th>
-                      <Th>Actions</Th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredUsers.map((u) => (
-                      <tr key={u.user_id}>
-                        <Td>{u.user_id}</Td>
-                        <Td style={{ fontWeight: 600 }}>{u.name}</Td>
-                        <Td>{u.email}</Td>
-                        <Td>{formatDate(u.created_at)}</Td>
+                       <HideMobile>ID</HideMobile>
+                       <Th>Name</Th>
+                       <Th>Email</Th>
+                       <HideMobile>Joined</HideMobile>
+                       <Th>Role</Th>
+                       <Th>Actions</Th>
+                     </tr>
+                   </thead>
+                   <tbody>
+                     {filteredUsers.map((u) => (
+                       <tr key={u.user_id}>
+                         <HideMobileCell>{u.user_id}</HideMobileCell>
+                         <Td style={{ fontWeight: 600 }}>{u.name}</Td>
+                         <Td>{u.email}</Td>
+                         <HideMobileCell>{formatDate(u.created_at)}</HideMobileCell>
                         <Td>
                           <Badge $admin={u.is_admin}>
                             {u.is_admin ? "Admin" : "User"}
                           </Badge>
                         </Td>
                         <Td>
-                          <div style={{ display: "flex", gap: 8 }}>
+                          <ActionGroup>
                             <ActionBtn onClick={() => toggleAdmin(u.user_id, u.is_admin)}>
                               <FiShield size={12} />
                               {u.is_admin ? "Revoke Admin" : "Make Admin"}
@@ -502,7 +573,7 @@ const AdminDashboard = () => {
                               <FiTrash2 size={12} />
                               Delete
                             </ActionBtn>
-                          </div>
+                          </ActionGroup>
                         </Td>
                       </tr>
                     ))}
@@ -523,22 +594,22 @@ const AdminDashboard = () => {
                 <StyledTable>
                   <thead>
                     <tr>
-                      <Th>ID</Th>
-                      <Th>Title</Th>
-                      <Th>Author</Th>
-                      <Th>Date</Th>
-                      <Th>Actions</Th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredBlogs.map((b) => (
-                      <tr key={b.blog_id}>
-                        <Td>{b.blog_id}</Td>
-                        <Td style={{ fontWeight: 600, maxWidth: 300, overflow: "hidden", textOverflow: "ellipsis" }}>
-                          {b.title}
-                        </Td>
-                        <Td>{b.author_name}</Td>
-                        <Td>{formatDate(b.created_at)}</Td>
+                       <HideMobile>ID</HideMobile>
+                       <Th>Title</Th>
+                       <Th>Author</Th>
+                       <HideMobile>Date</HideMobile>
+                       <Th>Actions</Th>
+                     </tr>
+                   </thead>
+                   <tbody>
+                     {filteredBlogs.map((b) => (
+                       <tr key={b.blog_id}>
+                         <HideMobileCell>{b.blog_id}</HideMobileCell>
+                          <Td style={{ fontWeight: 600 }}>
+                            {b.title}
+                          </Td>
+                         <Td>{b.author_name}</Td>
+                         <HideMobileCell>{formatDate(b.created_at)}</HideMobileCell>
                         <Td>
                           <ActionBtn $danger onClick={() => deleteBlog(b.blog_id)}>
                             <FiTrash2 size={12} />

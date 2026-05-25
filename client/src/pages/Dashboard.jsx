@@ -31,6 +31,10 @@ const Container = styled.div`
   justify-content: center;
   padding: 32px 0;
   overflow-y: auto;
+
+  @media (max-width: 600px) {
+    padding: 16px 0;
+  }
 `;
 
 const Wrapper = styled.div`
@@ -52,6 +56,12 @@ const PageHeader = styled.div`
   align-items: center;
   justify-content: space-between;
   animation: ${fadeInUp} 0.5s ease;
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
 `;
 
 const Title = styled.h1`

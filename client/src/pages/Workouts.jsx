@@ -295,6 +295,11 @@ const ModalCard = styled.div`
   max-height: 80vh;
   overflow-y: auto;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+
+  @media (max-width: 480px) {
+    padding: 20px 16px;
+    width: 95%;
+  }
 `;
 
 const ModalHeader = styled.div`
@@ -332,6 +337,11 @@ const ModalStats = styled.div`
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
   margin-bottom: 24px;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
 `;
 
 const StatBox = styled.div`
