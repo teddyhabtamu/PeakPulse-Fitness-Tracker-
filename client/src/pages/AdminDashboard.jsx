@@ -10,6 +10,7 @@ import {
   FiAlertCircle,
   FiRefreshCw,
   FiSearch,
+  FiClock,
 } from "react-icons/fi";
 
 const fadeInUp = keyframes`
@@ -118,8 +119,12 @@ const Tab = styled.button`
 
 const StatsRow = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
+
+  @media (max-width: 900px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
 
   @media (max-width: 600px) {
     grid-template-columns: 1fr;
@@ -370,14 +375,16 @@ const AdminDashboard = () => {
   const [tab, setTab] = useState("users");
   const [users, setUsers] = useState([]);
   const [blogs, setBlogs] = useState([]);
+  const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({ users: 0, blogs: 0, admins: 0 });
+  const [stats, setStats] = useState({ users: 0, blogs: 0, admins: 0, logs: 0 });
   const [confirm, setConfirm] = useState({ open: false, variant: "danger", title: "", message: "", onConfirm: null });
   const [search, setSearch] = useState("");
 
   const q = search.toLowerCase().trim();
   const filteredUsers = q ? users.filter((u) => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)) : users;
   const filteredBlogs = q ? blogs.filter((b) => b.title.toLowerCase().includes(q) || b.author_name?.toLowerCase().includes(q)) : blogs;
+  const filteredLogs = q ? logs.filter((l) => l.admin_name?.toLowerCase().includes(q) || l.action?.toLowerCase().includes(q) || l.entity_type?.toLowerCase().includes(q)) : logs;
 
   const fetchUsers = async () => {
     try {
@@ -403,19 +410,30 @@ const AdminDashboard = () => {
     }
   };
 
+  const fetchLogs = async () => {
+    try {
+      const res = await api.get("/admin/logs");
+      setLogs(res.data);
+      setStats((prev) => ({ ...prev, logs: res.data.length }));
+    } catch (err) {
+      console.error("Failed to fetch audit logs");
+    }
+  };
+
   const fetchAll = async () => {
     setLoading(true);
-    await Promise.all([fetchUsers(), fetchBlogs()]);
+    await Promise.all([fetchUsers(), fetchBlogs(), fetchLogs()]);
     setLoading(false);
   };
 
   useEffect(() => {
     const init = async () => {
       setLoading(true);
-      const [u, b] = await Promise.all([api.get("/admin/users"), api.get("/admin/blog")]);
+      const [u, b, l] = await Promise.all([api.get("/admin/users"), api.get("/admin/blog"), api.get("/admin/logs")]);
       setUsers(u.data);
       setBlogs(b.data);
-      setStats({ users: u.data.length, admins: u.data.filter((x) => x.is_admin).length, blogs: b.data.length });
+      setLogs(l.data);
+      setStats({ users: u.data.length, admins: u.data.filter((x) => x.is_admin).length, blogs: b.data.length, logs: l.data.length });
       setLoading(false);
     };
     init();
@@ -473,6 +491,15 @@ const AdminDashboard = () => {
       day: "numeric",
     });
 
+  const formatDateTime = (date) =>
+    new Date(date).toLocaleString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
   return (
     <Container>
       <Wrapper>
@@ -506,6 +533,13 @@ const AdminDashboard = () => {
               <StatLabel>Blog Posts</StatLabel>
             </StatInfo>
           </StatCard>
+          <StatCard>
+            <StatIcon $bg="#FF8C00"><FiClock size={20} /></StatIcon>
+            <StatInfo>
+              <StatValue>{stats.logs}</StatValue>
+              <StatLabel>Audit Logs</StatLabel>
+            </StatInfo>
+          </StatCard>
         </StatsRow>
 
         <TabBar>
@@ -515,11 +549,14 @@ const AdminDashboard = () => {
           <Tab $active={tab === "blogs"} onClick={() => setTab("blogs")}>
             <FiFileText size={16} /> Blog Posts
           </Tab>
+          <Tab $active={tab === "logs"} onClick={() => setTab("logs")}>
+            <FiClock size={16} /> Audit Logs
+          </Tab>
           <Spacer />
           <SearchWrapper>
             <SearchIcon><FiSearch size={14} /></SearchIcon>
             <SearchInput
-              placeholder={`Search ${tab === "users" ? "users" : "blog posts"}...`}
+              placeholder={`Search ${tab === "users" ? "users" : tab === "logs" ? "audit logs" : "blog posts"}...`}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -531,6 +568,53 @@ const AdminDashboard = () => {
 
         {loading ? (
           <LoadingRow>Loading...</LoadingRow>
+        ) : tab === "logs" ? (
+          <TableCard>
+            <TableHeader>
+              <TableTitle>Audit Logs</TableTitle>
+            </TableHeader>
+            <TableWrapper>
+              {filteredLogs.length === 0 ? (
+                <EmptyState><FiAlertCircle size={20} style={{ marginBottom: 8 }} /><br />{logs.length === 0 ? "No audit logs yet." : "No logs match your search."}</EmptyState>
+              ) : (
+                <StyledTable>
+                  <thead>
+                    <tr>
+                      <HideMobile>ID</HideMobile>
+                      <Th>Admin</Th>
+                      <Th>Action</Th>
+                      <Th>Entity</Th>
+                      <HideMobile>Details</HideMobile>
+                      <HideMobile>Date</HideMobile>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredLogs.map((l) => (
+                      <tr key={l.id}>
+                        <HideMobileCell>{l.id}</HideMobileCell>
+                        <Td style={{ fontWeight: 600 }}>{l.admin_name}</Td>
+                        <Td>
+                          <Badge $admin={l.action === "delete_user" || l.action === "delete_blog"}>
+                            {l.action.replace(/_/g, " ")}
+                          </Badge>
+                        </Td>
+                        <Td>{l.entity_type} #{l.entity_id}</Td>
+                        <HideMobileCell>
+                          {l.details ? (() => {
+                            try {
+                              const d = JSON.parse(l.details);
+                              return Object.values(d).filter(Boolean).join(", ");
+                            } catch { return ""; }
+                          })() : ""}
+                        </HideMobileCell>
+                        <HideMobileCell>{formatDateTime(l.created_at)}</HideMobileCell>
+                      </tr>
+                    ))}
+                  </tbody>
+                </StyledTable>
+              )}
+            </TableWrapper>
+          </TableCard>
         ) : tab === "users" ? (
           <TableCard>
             <TableHeader>

@@ -589,6 +589,20 @@ app.get("/api/workouts/:date", authenticateToken, async (req, res) => {
   }
 });
 
+// Audit log helper
+const auditLog = async (adminId, action, entityType, entityId, details) => {
+  try {
+    const [users] = await db.execute("SELECT name FROM users WHERE user_id = $1", [adminId]);
+    const adminName = users.length > 0 ? users[0].name : "Unknown";
+    await db.execute(
+      "INSERT INTO audit_logs (admin_id, admin_name, action, entity_type, entity_id, details) VALUES ($1, $2, $3, $4, $5, $6)",
+      [adminId, adminName, action, entityType, entityId, details ? JSON.stringify(details) : null]
+    );
+  } catch (err) {
+    console.error("Audit log error:", err);
+  }
+};
+
 // Admin endpoints
 app.get("/api/admin/users", authenticateToken, requireAdmin, async (req, res) => {
   try {
@@ -606,7 +620,10 @@ app.put("/api/admin/users/:id/role", authenticateToken, requireAdmin, async (req
   const { id } = req.params;
   const { is_admin } = req.body;
   try {
+    const [rows] = await db.execute("SELECT name, email FROM users WHERE user_id = $1", [id]);
     await db.execute("UPDATE users SET is_admin = $1 WHERE user_id = $2", [is_admin, id]);
+    const target = rows[0] || { name: "Unknown" };
+    await auditLog(req.userId, is_admin ? "grant_admin" : "revoke_admin", "user", id, { name: target.name, email: target.email });
     res.status(200).json({ message: "User role updated" });
   } catch (error) {
     console.error("Admin role update error:", error);
@@ -617,7 +634,10 @@ app.put("/api/admin/users/:id/role", authenticateToken, requireAdmin, async (req
 app.delete("/api/admin/users/:id", authenticateToken, requireAdmin, async (req, res) => {
   const { id } = req.params;
   try {
+    const [rows] = await db.execute("SELECT name, email FROM users WHERE user_id = $1", [id]);
     await db.execute("DELETE FROM users WHERE user_id = $1", [id]);
+    const target = rows[0] || { name: "Unknown", email: "Unknown" };
+    await auditLog(req.userId, "delete_user", "user", id, target);
     res.status(200).json({ message: "User deleted" });
   } catch (error) {
     console.error("Admin delete user error:", error);
@@ -640,10 +660,23 @@ app.get("/api/admin/blog", authenticateToken, requireAdmin, async (req, res) => 
 app.delete("/api/admin/blog/:id", authenticateToken, requireAdmin, async (req, res) => {
   const { id } = req.params;
   try {
+    const [rows] = await db.execute("SELECT title FROM Blog WHERE blog_id = $1", [id]);
     await db.execute("DELETE FROM Blog WHERE blog_id = $1", [id]);
+    const target = rows[0] || { title: "Unknown" };
+    await auditLog(req.userId, "delete_blog", "blog", id, target);
     res.status(200).json({ message: "Blog post deleted" });
   } catch (error) {
     console.error("Admin delete blog error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.get("/api/admin/logs", authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const [rows] = await db.execute("SELECT * FROM audit_logs ORDER BY created_at DESC LIMIT 200");
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error("Audit log fetch error:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });

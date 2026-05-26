@@ -94,6 +94,20 @@ async function initSchema() {
     `);
     console.log("Added cover_image column to Blog table");
 
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS audit_logs (
+        id SERIAL PRIMARY KEY,
+        admin_id INTEGER REFERENCES users(user_id) ON DELETE SET NULL,
+        admin_name VARCHAR(255),
+        action VARCHAR(50) NOT NULL,
+        entity_type VARCHAR(50) NOT NULL,
+        entity_id INTEGER,
+        details TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+    `);
+    console.log("Created audit_logs table");
+
     console.log("Schema initialization successful!");
   } catch (error) {
     console.error("Error creating schema:", error);
