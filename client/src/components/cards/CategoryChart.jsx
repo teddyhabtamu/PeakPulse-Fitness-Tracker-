@@ -15,23 +15,11 @@ const Card = styled.div`
   align-items: center;
   gap: 6px;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  touch-action: pan-y;
 
   &:hover {
     transform: translateY(-5px);
     box-shadow: 0px 15px 30px rgba(0, 255, 157, 0.15);
     border-color: ${({ theme }) => theme.primary + 50};
-  }
-
-  .MuiChartsLegend-root text,
-  .MuiChartsLegend-root tspan,
-  .MuiChartsAxis-tickLabel {
-    fill: ${({ theme }) => theme.text_secondary} !important;
-  }
-
-  .MuiChartsAxis-line,
-  .MuiChartsAxis-tick {
-    stroke: ${({ theme }) => theme.text_secondary}40 !important;
   }
 
   @media (max-width: 600px) {
@@ -93,22 +81,20 @@ const CategoryChart = ({ data }) => {
     <Card>
       <Title>Workout Categories</Title>
       {hasPieChartData ? (
-        <div style={isMobile ? { pointerEvents: "none" } : undefined}>
-          <PieChart
-            series={[
-              {
-                data: pieChartData,
-                innerRadius: 20,
-                outerRadius,
-                paddingAngle: 5,
-                cornerRadius: 5,
-              },
-            ]}
-            height={chartHeight}
-            margin={chartMargin}
-            slotProps={{ legend: legendProps }}
-          />
-        </div>
+        <PieChart
+          series={[
+            {
+              data: pieChartData,
+              innerRadius: 20,
+              outerRadius,
+              paddingAngle: 5,
+              cornerRadius: 5,
+            },
+          ]}
+          height={chartHeight}
+          margin={chartMargin}
+          slotProps={{ legend: legendProps }}
+        />
       ) : (
         <div style={{ color: "#AFAFB5", fontSize: 14, padding: "40px 0", textAlign: "center" }}>
           Add workouts to see category breakdown

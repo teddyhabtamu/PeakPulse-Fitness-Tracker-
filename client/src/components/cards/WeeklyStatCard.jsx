@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import styled from "styled-components";
 import { BarChart } from "@mui/x-charts/BarChart";
 
@@ -36,6 +36,7 @@ const Card = styled.div`
 
   @media (max-width: 600px) {
     padding: 16px;
+    pointer-events: none;
   }
 `;
 
@@ -49,34 +50,24 @@ const Title = styled.div`
 `;
 
 const WeeklyStatCard = ({ data }) => {
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 600);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
   const hasWeeklyData = data?.weeklyStats?.length > 0;
 
   return (
     <Card>
       <Title>Weekly Activity</Title>
       {hasWeeklyData ? (
-        <div style={isMobile ? { pointerEvents: "none" } : undefined}>
-          <BarChart
-            xAxis={[
-              {
-                scaleType: "band",
-                data: data.weeklyStats.map((_, i) => `W${i + 1}`),
-              },
-            ]}
-            series={[
-              { data: data.weeklyStats.map((stat) => Number(stat.total_duration) || 0), label: "Minutes" },
-            ]}
-            height={300}
-          />
-        </div>
+        <BarChart
+          xAxis={[
+            {
+              scaleType: "band",
+              data: data.weeklyStats.map((_, i) => `W${i + 1}`),
+            },
+          ]}
+          series={[
+            { data: data.weeklyStats.map((stat) => Number(stat.total_duration) || 0), label: "Minutes" },
+          ]}
+          height={300}
+        />
       ) : (
         <div style={{ color: "#AFAFB5", fontSize: 14, padding: "40px 0", textAlign: "center" }}>
           No weekly data yet

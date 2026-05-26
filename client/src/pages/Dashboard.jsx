@@ -444,10 +444,10 @@ const Dashboard = () => {
         )}
 
         {/* ─── CHARTS ─── */}
-        {data && data.weeklyStats?.length > 0 && (
+        {data && (data.weeklyStats?.length > 0 || data.workouts?.length > 0) && (
           <ChartsGrid>
-            <WeeklyStatCard data={data} />
-            <CategoryChart data={data} />
+            {data.weeklyStats?.length > 0 && <WeeklyStatCard data={data} />}
+            {data.workouts?.length > 0 && <CategoryChart data={data} />}
           </ChartsGrid>
         )}
 

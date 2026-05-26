@@ -379,6 +379,10 @@ const ChartWrapper = styled.div`
   .MuiChartsAxis-tick {
     stroke: ${({ theme }) => theme.text_secondary}40 !important;
   }
+
+  @media (max-width: 600px) {
+    pointer-events: none;
+  }
 `;
 
 // --- Loading / Empty ---
